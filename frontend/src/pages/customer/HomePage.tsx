@@ -69,10 +69,10 @@ export const HomePage: React.FC = () => {
           className="relative z-10 text-center px-4"
         >
           <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-display font-semibold text-white tracking-tight drop-shadow-lg max-w-4xl mx-auto">
-            Restaurant's in Cebu City
+            Restaurants in Cebu City
           </h1>
           <p className="mt-4 md:mt-6 text-base sm:text-lg md:text-xl text-white/95 font-light tracking-wide max-w-2xl mx-auto">
-            Book the best tables at top rated restaurants, skip the line, enjoy the dine—and suggest what&apos;s best.
+            Book the Best Tables at Top Rated Restaurants, Skip the Line, Enjoy the Dine and Suggest What&apos;s Best.
           </p>
         </motion.div>
 
