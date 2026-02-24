@@ -80,7 +80,7 @@ export const ProfilePage: React.FC = () => {
                   <Card className="text-center h-full">
                     <div className="relative w-32 h-32 mx-auto mb-4 group">
                       <div className="w-full h-full bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-lg overflow-hidden">
-                        {user.firstName[0]}{user.lastName[0]}
+                        {(user.firstName && user.firstName.charAt(0)) || (user.email && user.email.charAt(0)) || '?'}{(user.lastName && user.lastName.charAt(0)) || ''}
                       </div>
                       <button 
                         className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-not-allowed"

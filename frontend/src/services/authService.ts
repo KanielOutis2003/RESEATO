@@ -1,9 +1,8 @@
-// frontend/src/services/authService.ts
 import { supabase } from '../config/supabase'
+import { UserRole } from '../../../shared/types'
 
 class AuthService {
   async register(data: any) {
-    // Sign up with Supabase Auth
     const { data: authData, error: authError } = await supabase.auth.signUp({
       email: data.email,
       password: data.password,
@@ -28,10 +27,10 @@ class AuthService {
     })
 
     if (error) throw new Error(error.message)
-    
-    // Store user info
     localStorage.setItem('token', data.session?.access_token || '')
-    localStorage.setItem('user', JSON.stringify(data.user))
+
+    const normalized = this.normalizeUser(data.user)
+    localStorage.setItem('user', JSON.stringify(normalized))
     
     return { user: data.user, token: data.session?.access_token }
   }
@@ -48,7 +47,49 @@ class AuthService {
 
   getStoredUser() {
     const userStr = localStorage.getItem('user')
-    return userStr ? JSON.parse(userStr) : null
+    if (!userStr) return null
+    const raw = JSON.parse(userStr)
+    if (raw && (raw.firstName || raw.lastName)) return raw
+    return this.normalizeUser(raw)
+  }
+
+  private normalizeUser(user: any) {
+    if (!user) return null
+    const meta = user.user_metadata || {}
+    const firstName = meta.first_name || meta.firstName || ''
+    const lastName = meta.last_name || meta.lastName || ''
+    const role: UserRole = (meta.role as UserRole) || UserRole.CUSTOMER
+    return {
+      id: user.id,
+      email: user.email,
+      firstName,
+      lastName,
+      phone: meta.phone || '',
+      role,
+      createdAt: user.created_at || new Date().toISOString(),
+      updatedAt: user.updated_at || user.created_at || new Date().toISOString(),
+    }
+  }
+
+  async getProfile() {
+    const { data, error } = await supabase.auth.getUser()
+    if (error) throw new Error(error.message)
+    const normalized = this.normalizeUser(data.user)
+    return normalized
+  }
+
+  async updateProfile(data: { firstName: string; lastName: string; phone?: string }) {
+    const { data: res, error } = await supabase.auth.updateUser({
+      data: {
+        first_name: data.firstName,
+        last_name: data.lastName,
+        phone: data.phone || '',
+      },
+    })
+    if (error) throw new Error(error.message)
+    const normalized = this.normalizeUser(res.user)
+    localStorage.setItem('user', JSON.stringify(normalized))
+    return normalized
   }
 }
 

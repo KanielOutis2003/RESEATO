@@ -61,8 +61,11 @@ export const Navbar: React.FC<NavbarProps> = ({ user }) => {
     }
   };
 
-  const handleLogout = () => {
-    authService.logout();
+  const handleLogout = async () => {
+    await authService.logout();
+    setIsProfileOpen(false);
+    setIsMenuOpen(false);
+    navigate('/login', { replace: true });
   };
 
   const isActive = (path: string) => location.pathname === path;
@@ -202,7 +205,8 @@ export const Navbar: React.FC<NavbarProps> = ({ user }) => {
                   className="flex items-center space-x-3 px-4 py-2 rounded-xl hover:bg-white/10 transition-colors duration-200"
                 >
                   <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center text-white font-semibold">
-                    {user.firstName[0]}{user.lastName[0]}
+                    {(user.firstName && user.firstName.charAt(0)) || (user.email && user.email.charAt(0)) || '?'}
+                    {(user.lastName && user.lastName.charAt(0)) || ''}
                   </div>
                   <div className="hidden sm:block text-left">
                     <div className="text-sm font-semibold text-white">
