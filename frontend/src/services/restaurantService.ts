@@ -1,58 +1,41 @@
-import api, { handleApiError } from './api';
-import { Restaurant, RestaurantFilters } from '../../../shared/types';
+// frontend/src/services/restaurantService.ts
+import { supabase } from '../config/supabase'
 
 class RestaurantService {
-  async getAllRestaurants(filters?: RestaurantFilters): Promise<Restaurant[]> {
-    try {
-      const params = new URLSearchParams();
-      
-      if (filters?.cuisine) params.append('cuisine', filters.cuisine);
-      if (filters?.search) params.append('search', filters.search);
-      if (filters?.rating) params.append('rating', filters.rating.toString());
-      if (filters?.openNow) params.append('openNow', 'true');
+  async getAllRestaurants(filters?: any) {
+    let query = supabase
+      .from('restaurants')
+      .select('*, restaurant_images(*)')
+      .eq('is_active', true)
 
-      const response = await api.get(`/restaurants?${params.toString()}`);
-      return response.data.data;
-    } catch (error) {
-      throw new Error(handleApiError(error));
+    if (filters?.cuisine) {
+      query = query.eq('cuisine_type', filters.cuisine)
     }
+
+    if (filters?.search) {
+      query = query.or(`name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`)
+    }
+
+    if (filters?.rating) {
+      query = query.gte('rating', filters.rating)
+    }
+
+    const { data, error } = await query.order('rating', { ascending: false })
+
+    if (error) throw new Error(error.message)
+    return data
   }
 
-  async getRestaurantById(id: string): Promise<Restaurant> {
-    try {
-      const response = await api.get(`/restaurants/${id}`);
-      return response.data.data;
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
-  }
+  async getRestaurantById(id: string) {
+    const { data, error } = await supabase
+      .from('restaurants')
+      .select('*, restaurant_images(*)')
+      .eq('id', id)
+      .single()
 
-  async getMyRestaurant(): Promise<Restaurant> {
-    try {
-      const response = await api.get('/restaurants/vendor/my-restaurant');
-      return response.data.data;
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
-  }
-
-  async createRestaurant(data: any): Promise<Restaurant> {
-    try {
-      const response = await api.post('/restaurants/vendor/create', data);
-      return response.data.data;
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
-  }
-
-  async updateRestaurant(id: string, data: any): Promise<Restaurant> {
-    try {
-      const response = await api.put(`/restaurants/vendor/${id}`, data);
-      return response.data.data;
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
+    if (error) throw new Error(error.message)
+    return data
   }
 }
 
-export default new RestaurantService();
+export default new RestaurantService()

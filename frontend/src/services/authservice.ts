@@ -1,102 +1,55 @@
-import api, { handleApiError } from './api';
-import { User, UserRole } from '../../../shared/types';
-
-interface LoginCredentials {
-  email: string;
-  password: string;
-}
-
-interface RegisterData {
-  email: string;
-  password: string;
-  firstName: string;
-  lastName: string;
-  phone?: string;
-  role?: UserRole;
-}
-
-interface AuthResponse {
-  user: User;
-  token: string;
-}
+// frontend/src/services/authService.ts
+import { supabase } from '../config/supabase'
 
 class AuthService {
-  async login(credentials: LoginCredentials): Promise<AuthResponse> {
-    try {
-      const response = await api.post('/auth/login', credentials);
-      const { user, token } = response.data.data;
-      
-      this.setSession(user, token);
-      return { user, token };
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
+  async register(data: any) {
+    // Sign up with Supabase Auth
+    const { data: authData, error: authError } = await supabase.auth.signUp({
+      email: data.email,
+      password: data.password,
+      options: {
+        data: {
+          first_name: data.firstName,
+          last_name: data.lastName,
+          phone: data.phone,
+          role: data.role || 'customer'
+        }
+      }
+    })
+
+    if (authError) throw new Error(authError.message)
+    return { user: authData.user, token: authData.session?.access_token }
   }
 
-  async register(data: RegisterData): Promise<AuthResponse> {
-    try {
-      const response = await api.post('/auth/register', data);
-      const { user, token } = response.data.data;
-      
-      this.setSession(user, token);
-      return { user, token };
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
-  }
+  async login(credentials: any) {
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email: credentials.email,
+      password: credentials.password
+    })
 
-  async getProfile(): Promise<User> {
-    try {
-      const response = await api.get('/auth/profile');
-      return response.data.data;
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
-  }
-
-  async updateProfile(data: Partial<User>): Promise<User> {
-    try {
-      const response = await api.put('/auth/profile', data);
-      const user = response.data.data;
-      
-      // Update stored user
-      localStorage.setItem('user', JSON.stringify(user));
-      
-      return user;
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
-  }
-
-  logout(): void {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    window.location.href = '/login';
-  }
-
-  private setSession(user: User, token: string): void {
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
-  }
-
-  getStoredUser(): User | null {
-    const userStr = localStorage.getItem('user');
-    if (!userStr) return null;
+    if (error) throw new Error(error.message)
     
-    try {
-      return JSON.parse(userStr);
-    } catch {
-      return null;
-    }
+    // Store user info
+    localStorage.setItem('token', data.session?.access_token || '')
+    localStorage.setItem('user', JSON.stringify(data.user))
+    
+    return { user: data.user, token: data.session?.access_token }
   }
 
-  getToken(): string | null {
-    return localStorage.getItem('token');
+  async logout() {
+    await supabase.auth.signOut()
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
   }
 
-  isAuthenticated(): boolean {
-    return !!this.getToken();
+  isAuthenticated() {
+    return !!localStorage.getItem('token')
+  }
+
+  getStoredUser() {
+    const userStr = localStorage.getItem('user')
+    return userStr ? JSON.parse(userStr) : null
   }
 }
 
-export default new AuthService();
+export default new AuthService()
