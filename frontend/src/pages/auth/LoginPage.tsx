@@ -59,7 +59,19 @@ export const LoginPage: React.FC = () => {
       redirectUser(user);
     } catch (error: any) {
       console.error('Login error:', error);
-      toast.error(error.message || 'Login failed');
+      const msg = error.message || 'Login failed';
+      if (msg.includes('Email not confirmed')) {
+        toast.error('Please confirm your email to continue.');
+        navigate(`/verify-email?email=${encodeURIComponent(email)}`);
+      } else if (msg.includes('Invalid Refresh Token')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+        toast.error('Session expired. Please sign in again.');
+      } else if (msg.includes('Invalid login credentials')) {
+        toast.error('Invalid email or password. Please try again.');
+      } else {
+        toast.error(msg);
+      }
     } finally {
       setLoading(false);
     }

@@ -15,7 +15,8 @@ class NotificationService {
       const response = await api.get('/notifications');
       return response.data.data;
     } catch (error) {
-      throw new Error(handleApiError(error));
+      console.warn('Notifications unavailable:', handleApiError(error));
+      return [];
     }
   }
 
@@ -23,7 +24,7 @@ class NotificationService {
     try {
       await api.put(`/notifications/${notificationId}/read`);
     } catch (error) {
-      throw new Error(handleApiError(error));
+      console.warn('Mark as read failed (offline?):', handleApiError(error));
     }
   }
 
@@ -31,7 +32,7 @@ class NotificationService {
     try {
       await api.put('/notifications/read-all');
     } catch (error) {
-      throw new Error(handleApiError(error));
+      console.warn('Mark all as read failed (offline?):', handleApiError(error));
     }
   }
 }

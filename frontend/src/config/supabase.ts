@@ -8,6 +8,22 @@ if (!supabaseUrl || !supabaseAnonKey) {
   throw new Error('Missing Supabase environment variables!')
 }
 
-console.log('Supabase URL:', supabaseUrl) // Debug line - check console
+console.log('Supabase URL:', supabaseUrl)
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: true,
+  },
+})
+
+supabase.auth.onAuthStateChange((_event, session) => {
+  if (session?.access_token) {
+    localStorage.setItem('token', session.access_token)
+    localStorage.setItem('user', JSON.stringify(session.user))
+  } else {
+    localStorage.removeItem('token')
+    localStorage.removeItem('user')
+  }
+})
