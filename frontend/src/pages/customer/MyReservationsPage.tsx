@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Filter } from 'lucide-react';
+import { Calendar, Filter, ArrowLeft } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Reservation, ReservationStatus } from '../../../../shared/types';
 import reservationService from '../../services/reservationService';
 import { ReservationCard } from '../../components/reservation/ReservationCard';
@@ -10,6 +11,7 @@ export const MyReservationsPage: React.FC = () => {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | ReservationStatus>('all');
+  const navigate = useNavigate();
 
   useEffect(() => {
     loadReservations();
@@ -69,10 +71,21 @@ export const MyReservationsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-white py-12">
+    <div className="min-h-screen bg-gradient-to-b from-neutral-50 to-white pb-12">
       <Toaster position="top-center" />
 
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
+        {/* Back Button */}
+        <button 
+          onClick={() => navigate(-1)}
+          className="mb-6 flex items-center text-neutral-500 hover:text-primary-600 transition-colors group"
+        >
+          <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center mr-2 group-hover:bg-primary-50">
+            <ArrowLeft className="w-4 h-4" />
+          </div>
+          <span className="text-sm font-medium">Back</span>
+        </button>
+
         {/* Header */}
         <motion.div
           initial={{ opacity: 0, y: -20 }}

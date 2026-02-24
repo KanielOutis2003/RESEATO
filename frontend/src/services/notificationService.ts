@@ -12,10 +12,22 @@ export interface Notification {
 class NotificationService {
   async getNotifications(): Promise<Notification[]> {
     try {
+      // In development, the backend might not be running
+      // Returning empty array to avoid network errors in navbar
+      if (process.env.NODE_ENV === 'development') {
+        try {
+          const response = await api.get('/notifications');
+          return response.data.data;
+        } catch (e) {
+          console.warn('Backend not reachable for notifications, using fallback');
+          return [];
+        }
+      }
       const response = await api.get('/notifications');
       return response.data.data;
     } catch (error) {
-      throw new Error(handleApiError(error));
+      console.error('Failed to get notifications:', error);
+      return []; // Return empty array instead of throwing to prevent UI crashes
     }
   }
 
