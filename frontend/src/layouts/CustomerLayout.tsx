@@ -1,25 +1,12 @@
-import React, { useEffect } from 'react';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import React from 'react';
+import { Outlet, useLocation } from 'react-router-dom';
 import { Navbar } from '../components/common/Navbar';
 import authService from '../services/authService';
 
 export const CustomerLayout: React.FC = () => {
   const user = authService.getStoredUser();
   const location = useLocation();
-  const navigate = useNavigate();
   const isLanding = location.pathname === '/';
-
-  useEffect(() => {
-    if (isLanding && user) {
-      if (user.role === 'vendor') {
-        navigate('/vendor/dashboard', { replace: true });
-      } else if (user.role === 'admin') {
-        navigate('/admin/dashboard', { replace: true });
-      } else {
-        navigate('/dashboard', { replace: true });
-      }
-    }
-  }, [isLanding, user, navigate]);
 
   return (
     <div className="min-h-screen bg-neutral-50">

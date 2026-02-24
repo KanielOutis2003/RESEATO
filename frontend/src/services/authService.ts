@@ -34,15 +34,6 @@ class AuthService {
     
     return { user: data.user, token: data.session?.access_token }
   }
-  
-  async resendConfirmation(email: string) {
-    const { error } = await supabase.auth.resend({
-      type: 'signup',
-      email,
-    })
-    if (error) throw new Error(error.message)
-    return true
-  }
 
   async logout() {
     await supabase.auth.signOut()

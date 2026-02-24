@@ -72,7 +72,7 @@ export const RegisterPage: React.FC = () => {
 
     try {
       setLoading(true);
-      const res = await authService.register({
+      await authService.register({
         email: formData.email,
         password: formData.password,
         firstName: formData.firstName,
@@ -81,14 +81,14 @@ export const RegisterPage: React.FC = () => {
         role: formData.role,
       });
       
-      if (!res.token) {
-        toast.success('Registration successful! Please confirm your email.');
-        navigate(`/verify-email?email=${encodeURIComponent(formData.email)}`);
-        return;
-      }
-      
       toast.success('Registration successful!');
-      navigate('/dashboard');
+      
+      // Redirect based on role
+      if (formData.role === UserRole.VENDOR) {
+        navigate('/vendor/dashboard');
+      } else {
+        navigate('/dashboard');
+      }
     } catch (error: any) {
       toast.error(error.message || 'Registration failed');
     } finally {
