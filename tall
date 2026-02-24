@@ -1,0 +1,5 @@
+[33m8b9c148f[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mtest-deploy[m[33m, [m[1;31morigin/test-deploy[m[33m)[m fix resto accs
+[33m65a25087[m 5:11pm
+[33md1403f2b[m fix_netlify_publish_dir
+[33m4457f62f[m add_netlify_toml
+[33m3c9b15ca[m fix_case_sensitivity
