@@ -275,7 +275,7 @@ export const RestaurantDetailPage: React.FC = () => {
                     disabled={!selectedTime}
                     className="w-full py-5 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-bold text-lg shadow-xl shadow-primary-200 transition-all active:scale-95 disabled:opacity-50"
                   >
-                    {submitting ? 'Processing...' : 'Complete Reservation'}
+                    {submitting ? 'Processing...' : 'Proceed to Payment'}
                   </Button>
                   
                   <p className="text-center text-[10px] text-neutral-400 font-medium">

@@ -1,4 +1,4 @@
-import api, { handleApiError } from './api';
+import { supabase } from '../config/supabase';
 
 export interface Notification {
   id: string;
@@ -12,39 +12,50 @@ export interface Notification {
 class NotificationService {
   async getNotifications(): Promise<Notification[]> {
     try {
-      // In development, the backend might not be running
-      // Returning empty array to avoid network errors in navbar
-      if (process.env.NODE_ENV === 'development') {
-        try {
-          const response = await api.get('/notifications');
-          return response.data.data;
-        } catch (e) {
-          console.warn('Backend not reachable for notifications, using fallback');
-          return [];
-        }
-      }
-      const response = await api.get('/notifications');
-      return response.data.data;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      return (data || []).map(n => ({
+        id: n.id,
+        userId: n.user_id,
+        title: n.title,
+        message: n.message,
+        isRead: n.is_read,
+        createdAt: n.created_at
+      }));
     } catch (error) {
       console.error('Failed to get notifications:', error);
-      return []; // Return empty array instead of throwing to prevent UI crashes
+      return [];
     }
   }
 
   async markAsRead(notificationId: string): Promise<void> {
-    try {
-      await api.put(`/notifications/${notificationId}/read`);
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('id', notificationId);
+    
+    if (error) throw error;
   }
 
   async markAllAsRead(): Promise<void> {
-    try {
-      await api.put('/notifications/read-all');
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('user_id', user.id);
+    
+    if (error) throw error;
   }
 }
 

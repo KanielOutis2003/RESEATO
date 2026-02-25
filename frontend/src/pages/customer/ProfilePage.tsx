@@ -127,11 +127,11 @@ export const ProfilePage: React.FC = () => {
               <h2 className="text-xl font-bold text-neutral-900">
                 {user.firstName} {user.lastName}
               </h2>
-                    <p className="text-primary-600 font-medium capitalize mt-1">
-                      {user.role} Account
-                    </p>
-                  </Card>
-                </div>
+              <p className="text-primary-600 font-medium capitalize mt-1">
+                {user.role} Account
+              </p>
+            </Card>
+          </div>
 
           {/* Details Card */}
           <div className="md:col-span-2">

@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { CreditCard, Lock, CheckCircle, Wallet } from 'lucide-react';
+import { CreditCard, Lock, CheckCircle, Wallet, XCircle } from 'lucide-react';
+import { Loader } from '../../components/common/Loader';
 import { Button } from '../../components/common/Button';
 import { Card } from '../../components/common/Card';
 import { TermsModal } from '../../components/common/TermsModal';
-import paymentService from '../../services/paymentService';
+import reservationService from '../../services/reservationService';
 import toast, { Toaster } from 'react-hot-toast';
 
 export const PaymentPage: React.FC = () => {
@@ -16,6 +17,46 @@ export const PaymentPage: React.FC = () => {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [termsError, setTermsError] = useState('');
   const [termsModalOpen, setTermsModalOpen] = useState(false);
+  const [reservation, setReservation] = useState<any>(null);
+
+  React.useEffect(() => {
+    const fetchReservation = async () => {
+      if (!reservationId) return;
+      try {
+        setLoading(true);
+        const data = await reservationService.getReservationById(reservationId);
+        setReservation(data);
+      } catch (error) {
+        console.error('Error fetching reservation:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchReservation();
+  }, [reservationId]);
+
+  if (loading) return (
+    <div className="min-h-screen flex items-center justify-center bg-neutral-50">
+      <Loader />
+    </div>
+  );
+
+  if (!reservation) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-neutral-50 p-4">
+        <div className="bg-white p-8 rounded-3xl shadow-xl text-center max-w-md">
+          <div className="w-16 h-16 bg-red-100 text-red-600 rounded-full flex items-center justify-center mx-auto mb-4">
+            <XCircle className="w-8 h-8" />
+          </div>
+          <h2 className="text-2xl font-bold text-neutral-900 mb-2">Reservation Not Found</h2>
+          <p className="text-neutral-600 mb-6">We couldn't find the reservation details. It may have been expired or cancelled.</p>
+          <Button onClick={() => navigate('/dashboard')} className="w-full">
+            Back to Dashboard
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   const handlePayment = async () => {
     if (!reservationId) return;
@@ -28,14 +69,15 @@ export const PaymentPage: React.FC = () => {
 
     try {
       setLoading(true);
-      await paymentService.createPayment(reservationId, 100, paymentMethod);
+      // Simulate fake payment delay
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       
-      toast.success('Payment successful!');
+      // Update reservation status to 'pending' (but could be 'paid' if column existed)
+      // The vendor will then confirm it from their dashboard
+      await reservationService.updateReservationStatus(reservationId, 'pending');
       
-      // Delay navigation to show success message
-      setTimeout(() => {
-        navigate('/my-reservations');
-      }, 1500);
+      toast.success('Payment successful! Your reservation is awaiting restaurant confirmation.');
+      navigate('/my-reservations');
     } catch (error: any) {
       toast.error(error.message || 'Payment failed');
     } finally {

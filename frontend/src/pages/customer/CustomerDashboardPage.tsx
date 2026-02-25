@@ -9,12 +9,11 @@ import { Button } from '../../components/common/Button';
 import { SimpleMap } from '../../components/common/SimpleMap';
 
 const cuisineTypes = [
-  { name: 'Filipino', image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&q=80' },
   { name: 'Seafood', image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=200&q=80' },
+  { name: 'Filipino', image: 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=200&q=80' },
   { name: 'Korean', image: 'https://images.unsplash.com/photo-1512058564366-18510be2db19?w=200&q=80' },
-  { name: 'Chinese', image: 'https://images.unsplash.com/photo-1519708227418-c8fd9a32b7a2?w=200&q=80' },
-  { name: 'Japanese', image: 'https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=200&q=80' },
-  { name: 'Fast Food', image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&q=80' },
+  { name: 'Ramen', image: 'https://images.unsplash.com/photo-1569718212165-3a8278d5f624?w=200&q=80' },
+  { name: 'Buffet', image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?w=200&q=80' },
 ];
 
 const heroImages = [

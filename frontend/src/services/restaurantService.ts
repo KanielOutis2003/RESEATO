@@ -38,29 +38,34 @@ class RestaurantService {
         closingTime: r.closing_time ?? r.closingTime,
         rating: typeof r.rating === 'number' ? r.rating : 0,
         totalReviews: r.total_reviews ?? r.totalReviews ?? 0,
+        description: r.description || 'Welcome to our restaurant! We serve the finest dishes in town with a focus on quality and taste.',
       }
     })
     if (mapped.length > 0) return mapped
-    const fallback = [
+    return this.getFallbackData()
+  }
+
+  getFallbackData() {
+    return [
       {
         id: 'demo-cabalen',
         ownerId: '',
         name: 'Cabalen',
-        description: 'Authentic Filipino buffet with a focus on Kapampangan cuisine.',
+        description: 'Authentic Filipino buffet with a focus on Kapampangan cuisine. Cabalen is famous for its Kapampangan buffet, offering a wide array of Filipino favorites from appetizers to desserts. Experience the best of home-style Filipino cooking in a festive, all-you-can-eat setting.',
         cuisine: 'Filipino',
-        cuisineType: 'Filipino',
+        cuisineType: 'Buffet',
         address: 'SM Seaside City Cebu',
         city: 'Cebu',
         zipCode: '',
-        phone: '',
-        email: '',
-        website: '',
+        phone: '(032) 254 9000',
+        email: 'info@cabalen.ph',
+        website: 'https://www.cabalen.ph',
         openingHours: {},
         openingTime: '10:00',
         closingTime: '21:00',
         images: [{ id: 'img1', imageUrl: 'https://static.wixstatic.com/media/382e5f_c8208f93156f478986728e53bd9e331c~mv2.png/v1/fill/w_551,h_551,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/382e5f_c8208f93156f478986728e53bd9e331c~mv2.png', isPrimary: true }],
         tables: [],
-        rating: 4.3,
+        rating: 5.0,
         reviewCount: 0,
         totalReviews: 0,
         latitude: undefined,
@@ -73,21 +78,21 @@ class RestaurantService {
         id: 'demo-seoul',
         ownerId: '',
         name: 'Seoul Black',
-        description: 'Korean barbecue and comfort dishes.',
+        description: 'Premium Korean barbecue and comfort dishes. Seoul Black offers an authentic Korean dining experience with high-quality meats, traditional side dishes, and a modern atmosphere. Perfect for groups and families who enjoy interactive grilling and hearty Korean stews.',
         cuisine: 'Korean',
         cuisineType: 'Korean',
         address: 'SM Seaside City Cebu',
         city: 'Cebu',
         zipCode: '',
-        phone: '',
-        email: '',
+        phone: '0927 508 6275',
+        email: 'contact@seoulblack.com',
         website: '',
         openingHours: {},
         openingTime: '10:00',
         closingTime: '22:00',
         images: [{ id: 'img2', imageUrl: 'https://scontent.fcgy2-1.fna.fbcdn.net/v/t39.30808-6/485876367_694469239918258_9125476005181298509_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=106&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeFwsFoVlsljRNeiAWcsYM31CGoaho-QLpUIahqGj5AulXwBKaLL6u-vFc5uLYD0EX6QkjHHgODbzL6YkAaKqgmG&_nc_ohc=FDVrt-HyGUcQ7kNvwHknBc_&_nc_oc=AdkFRAwbfcqrhSEogmmd7RyppKzrCAXKWShNZBLsrBDGopdovZEy-4wnSDqIFjr8qFiL0P2wqcIKR4o9TxhKEptn&_nc_zt=23&_nc_ht=scontent.fcgy2-1.fna&_nc_gid=WWFeXMbuZII_UBTUd2oBAA&oh=00_AftDYdJk3zB6hdBpClptcvC0BhQ6a-mXS-CoJ8e0owh1hg&oe=69A32EA3', isPrimary: true }],
         tables: [],
-        rating: 4.1,
+        rating: 4.8,
         reviewCount: 0,
         totalReviews: 0,
         latitude: undefined,
@@ -100,21 +105,21 @@ class RestaurantService {
         id: 'demo-sachi',
         ownerId: '',
         name: 'Sachi Ramen',
-        description: 'Japanese ramen and rice bowls.',
+        description: 'Authentic Japanese ramen and rice bowls. Sachi Ramen specializes in rich, flavorful broths and house-made noodles. From our signature Tonkotsu to spicy Tantanmen, every bowl is crafted with passion and traditional Japanese techniques.',
         cuisine: 'Japanese',
-        cuisineType: 'Japanese',
+        cuisineType: 'Ramen',
         address: 'SM City Cebu',
         city: 'Cebu',
         zipCode: '',
-        phone: '',
-        email: '',
+        phone: '(032) 412 4567',
+        email: 'info@sachiramen.com',
         website: '',
         openingHours: {},
         openingTime: '10:00',
         closingTime: '21:00',
         images: [{ id: 'img3', imageUrl: 'https://images.hive.blog/0x0/https://files.peakd.com/file/peakd-hive/indayclara/EoK5NFgi4KCW5c22sGaZwB392hCmsnycZwK7ECbmB4gr6wW4nbao2wKLGU4y8XsYgR2.jpg', isPrimary: true }],
         tables: [],
-        rating: 4.2,
+        rating: 4.9,
         reviewCount: 0,
         totalReviews: 0,
         latitude: undefined,
@@ -127,21 +132,21 @@ class RestaurantService {
         id: 'demo-boy-belly',
         ownerId: '',
         name: 'Boy Belly',
-        description: 'Filipino favorites and grills.',
+        description: 'Cebu\'s favorite Lechon Belly and Filipino specialties. Boy Belly brings the iconic taste of Cebuano lechon to the table, along with a variety of grilled favorites and home-style Filipino dishes that celebrate local flavors.',
         cuisine: 'Filipino',
         cuisineType: 'Filipino',
         address: 'SM Seaside City Cebu',
         city: 'Cebu',
         zipCode: '',
-        phone: '',
-        email: '',
+        phone: '(032) 123 9999',
+        email: 'info@boybelly.com',
         website: '',
         openingHours: {},
         openingTime: '10:00',
         closingTime: '21:00',
-        images: [{ id: 'img4', imageUrl: 'https://orangemagazine.ph/wp-content/uploads/2025/02/SM-Seaside-City-Cebu.png', isPrimary: true }],
+        images: [{ id: 'img4', imageUrl: 'https://scontent.fceb1-3.fna.fbcdn.net/v/t39.30808-6/499178510_670252335901912_5015432747052094833_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeH3z5bxo33F_pj_jCFSzelfEugl2qr4Oc0S6CXaqvg5zVxE8fYJ-yPA8MFO3aVWtiLm_xgEtuKK-OzP6SFyax8L&_nc_ohc=cFe9ktJ3waMQ7kNvwFFwAKo&_nc_oc=AdlAqOUFiGs6L6aAbg4I4i3A9PNjBc_pPoldIWYzEmosO85ip8on8uA1ZrVkag6pJB6Dibunch-vWLYSFLwbo1Jc&_nc_zt=23&_nc_ht=scontent.fceb1-3.fna&_nc_gid=2BqukcnRRSExTy3LVv7lTA&oh=00_AfuER70DUjNlssIDzaUd8GOGdbnshcJUMvpHUtgRuIDfZw&oe=69A4CEDB', isPrimary: true }],
         tables: [],
-        rating: 4.0,
+        rating: 4.8,
         reviewCount: 0,
         totalReviews: 0,
         latitude: undefined,
@@ -635,6 +640,30 @@ class RestaurantService {
         updatedAt: new Date().toISOString(),
       },
     ]
+  }
+
+  async getMyRestaurantByOwnerId(ownerId: string) {
+    const { data, error } = await supabase
+      .from('restaurants')
+      .select('*')
+      .eq('owner_id', ownerId)
+      .single()
+
+    if (error) {
+      // If no real restaurant in DB, check fallback data for demo accounts
+      const fallbacks = this.getFallbackData();
+      const { data: { user } } = await supabase.auth.getUser();
+      const demoResto = fallbacks.find(r => r.email === user?.email);
+      if (demoResto) return demoResto;
+      return null;
+    }
+    return data
+  }
+
+  async getMyRestaurant() {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+    return this.getMyRestaurantByOwnerId(user.id)
   }
 }
 
