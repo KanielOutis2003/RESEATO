@@ -19,6 +19,7 @@ export const Navbar: React.FC<NavbarProps> = ({ user }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -113,6 +114,7 @@ export const Navbar: React.FC<NavbarProps> = ({ user }) => {
   const links = getLinks();
 
   return (
+    <>
     <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-neutral-100 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
@@ -282,7 +284,7 @@ export const Navbar: React.FC<NavbarProps> = ({ user }) => {
                         </div>
                         <div className="border-t border-neutral-50 mt-1 pt-1">
                           <button
-                            onClick={handleLogout}
+                            onClick={() => setIsLogoutConfirmOpen(true)}
                             className="flex items-center w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
                           >
                             <svg className="w-4 h-4 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -361,6 +363,45 @@ export const Navbar: React.FC<NavbarProps> = ({ user }) => {
         </AnimatePresence>
       </div>
     </nav>
+    <AnimatePresence>
+      {isLogoutConfirmOpen && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsLogoutConfirmOpen(false)}
+            className="absolute inset-0 bg-black/40"
+          />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.95, y: 20 }}
+            className="relative w-full max-w-sm bg-white rounded-2xl shadow-2xl border border-neutral-100 p-6"
+          >
+            <h3 className="text-lg font-semibold text-neutral-900 mb-2">Confirm Logout</h3>
+            <p className="text-sm text-neutral-600 mb-6">Are you sure you want to log out?</p>
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={() => setIsLogoutConfirmOpen(false)}
+                className="flex-1 px-4 py-2 rounded-xl border border-neutral-200 text-neutral-700 hover:bg-neutral-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="flex-1 px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-500"
+              >
+                Log out
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      )}
+    </AnimatePresence>
+    </>
   );
 };
 
