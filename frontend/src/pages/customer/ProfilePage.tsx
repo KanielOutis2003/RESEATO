@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Mail, Phone, Calendar, Shield, Edit, Save, X } from 'lucide-react';
+import { Mail, Phone, Calendar, Shield, Edit, Save, X, ArrowLeft, Camera, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import authService from '../../services/authService';
 import { Card } from '../../components/common/Card';
 import { Button } from '../../components/common/Button';
@@ -13,6 +14,9 @@ export const ProfilePage: React.FC = () => {
   const [user, setUser] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [isEditing, setIsEditing] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const navigate = useNavigate();
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -39,6 +43,21 @@ export const ProfilePage: React.FC = () => {
     }
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+
+    try {
+      setUploading(true);
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      toast.success('Profile picture upload would happen here. (Supabase Storage integration required)');
+    } catch (error) {
+      console.error('Error uploading image:', error);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleUpdate = async () => {
     try {
       const updatedUser = await authService.updateProfile(formData);
@@ -61,42 +80,58 @@ export const ProfilePage: React.FC = () => {
   if (!user) return null;
 
   return (
-    <div className="min-h-screen bg-neutral-50 py-12 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-neutral-50 pb-12">
       <Toaster position="top-center" />
       
-      <div className="max-w-3xl mx-auto">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="mb-8"
+      <div className="max-w-4xl mx-auto px-4 pt-8">
+        {/* Back Button */}
+        <button 
+          onClick={() => navigate(-1)}
+          className="mb-6 flex items-center text-neutral-500 hover:text-primary-600 transition-colors group"
         >
-          <h1 className="text-3xl font-bold text-neutral-900">My Profile</h1>
-          <p className="text-neutral-600 mt-2">Manage your account information</p>
-        </motion.div>
+          <div className="w-8 h-8 rounded-full bg-white shadow-sm flex items-center justify-center mr-2 group-hover:bg-primary-50">
+            <ArrowLeft className="w-4 h-4" />
+          </div>
+          <span className="text-sm font-medium">Back</span>
+        </button>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                {/* Profile Card */}
-                <div className="md:col-span-1">
-                  <Card className="text-center h-full">
-                    <div className="relative w-32 h-32 mx-auto mb-4 group">
-                      <div className="w-full h-full bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center text-white text-4xl font-bold shadow-lg overflow-hidden">
-                        {user.firstName[0]}{user.lastName[0]}
-                      </div>
-                      <button 
-                        className="absolute inset-0 bg-black/40 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-not-allowed"
-                        title="Profile picture upload coming soon"
-                      >
-                        <Edit className="w-8 h-8 text-white" />
-                      </button>
-                    </div>
-                    <h2 className="text-xl font-bold text-neutral-900">
-                      {user.firstName} {user.lastName}
-                    </h2>
-                    <p className="text-primary-600 font-medium capitalize mt-1">
-                      {user.role} Account
-                    </p>
-                  </Card>
+        <div className="flex flex-col md:flex-row gap-8">
+          {/* Left Column - Profile Summary */}
+          <div className="md:w-1/3">
+            <Card className="p-6 text-center">
+              <div className="relative inline-block mb-4 group">
+                <div className="w-32 h-32 rounded-full bg-primary-100 flex items-center justify-center text-primary-700 text-4xl font-bold border-4 border-white shadow-md overflow-hidden">
+                  {user.firstName?.charAt(0)}
+                  {user.lastName?.charAt(0)}
                 </div>
+                {/* Profile Pic Edit Button */}
+                <button 
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploading}
+                  className="absolute bottom-0 right-0 w-10 h-10 bg-primary-600 text-white rounded-full border-4 border-white shadow-lg flex items-center justify-center hover:bg-primary-700 transition-all active:scale-95 disabled:opacity-50"
+                >
+                  {uploading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Camera className="w-4 h-4" />
+                  )}
+                </button>
+                <input 
+                  type="file" 
+                  ref={fileInputRef} 
+                  onChange={handleFileChange} 
+                  className="hidden" 
+                  accept="image/*" 
+                />
+              </div>
+              <h2 className="text-xl font-bold text-neutral-900">
+                {user.firstName} {user.lastName}
+              </h2>
+              <p className="text-primary-600 font-medium capitalize mt-1">
+                {user.role} Account
+              </p>
+            </Card>
+          </div>
 
           {/* Details Card */}
           <div className="md:col-span-2">

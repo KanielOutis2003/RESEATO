@@ -9,7 +9,7 @@ export const CustomerLayout: React.FC = () => {
   const isLanding = location.pathname === '/';
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-[#f3f4f6]">
       {!isLanding && <Navbar user={user} />}
       <main>
         <Outlet />

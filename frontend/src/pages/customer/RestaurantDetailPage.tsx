@@ -102,45 +102,59 @@ export const RestaurantDetailPage: React.FC = () => {
     || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=80';
 
   return (
-    <div className="min-h-screen bg-neutral-50">
+    <div className="min-h-screen bg-neutral-50 pb-12">
       <Toaster position="top-center" />
 
-      {/* Hero Image */}
-      <div className="relative h-64 md:h-96 overflow-hidden">
-        <img
+      {/* Hero Header with Glassmorphism */}
+      <div className="relative h-[450px] w-full overflow-hidden">
+        <motion.img
+          initial={{ scale: 1.1 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 0.8 }}
           src={primaryImage}
           alt={restaurant.name}
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
         
-        {/* Back Button */}
-        <button
-          onClick={() => navigate('/')}
-          className="absolute top-4 left-4 md:top-8 md:left-8 bg-white/90 backdrop-blur-sm p-2 md:p-3 rounded-full hover:bg-white transition-all duration-200 shadow-lg"
-        >
-          <ArrowLeft className="w-5 h-5 md:w-6 md:h-6 text-neutral-900" />
-        </button>
+        {/* Navigation Overlays */}
+        <div className="absolute top-8 left-8 flex items-center space-x-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center space-x-2 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-xl text-white hover:bg-white/20 transition-all group"
+          >
+            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+            <span className="font-medium">Back to Discovery</span>
+          </button>
+        </div>
 
-        {/* Title Overlay */}
-        <div className="absolute bottom-0 left-0 right-0 p-4 md:p-8">
+        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
           <div className="max-w-6xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="space-y-2 md:space-y-4"
+              className="space-y-4"
             >
-              <div className="inline-block bg-primary-500 text-white px-3 py-1 md:px-4 md:py-2 rounded-full text-xs md:text-sm font-semibold uppercase tracking-wide">
-                {restaurant.cuisineType}
+              <div className="flex items-center space-x-3">
+                <span className="px-4 py-1.5 bg-primary-600 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-lg shadow-primary-600/20">
+                  {restaurant.cuisineType}
+                </span>
+                <div className="flex items-center space-x-1 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
+                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
+                  <span className="text-sm font-bold text-white">{restaurant.rating.toFixed(1)}</span>
+                </div>
               </div>
-              <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight">
+              <h1 className="text-4xl md:text-6xl font-display font-bold text-white tracking-tight">
                 {restaurant.name}
               </h1>
-              <div className="flex items-center space-x-4 md:space-x-6 text-white">
-                <div className="flex items-center space-x-1 md:space-x-2">
-                  <Star className="w-4 h-4 md:w-5 md:h-5 fill-yellow-400 text-yellow-400" />
-                  <span className="text-base md:text-lg font-semibold">{restaurant.rating.toFixed(1)}</span>
-                  <span className="text-xs md:text-base text-neutral-300">({restaurant.totalReviews} reviews)</span>
+              <div className="flex items-center text-white/90 space-x-6">
+                <div className="flex items-center space-x-2">
+                  <MapPin className="w-5 h-5 text-primary-400" />
+                  <span className="text-sm font-medium">{restaurant.city}</span>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Clock className="w-5 h-5 text-primary-400" />
+                  <span className="text-sm font-medium">{restaurant.openingTime.slice(0, 5)} - {restaurant.closingTime.slice(0, 5)}</span>
                 </div>
               </div>
             </motion.div>
@@ -148,147 +162,130 @@ export const RestaurantDetailPage: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-6xl mx-auto px-4 py-12">
+      {/* Main Content Layout */}
+      <div className="max-w-6xl mx-auto px-4 -mt-10 relative z-10">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Left Column - Details */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Description */}
-            <Card>
-              <h2 className="text-2xl font-bold text-neutral-900 mb-4">About</h2>
-              <p className="text-neutral-700 leading-relaxed">{restaurant.description}</p>
-            </Card>
-
-            {/* Info */}
-            <Card>
-              <h2 className="text-2xl font-bold text-neutral-900 mb-6">Information</h2>
-              <div className="space-y-4">
-                <div className="flex items-start space-x-3">
-                  <MapPin className="w-5 h-5 text-primary-500 mt-1 flex-shrink-0" />
-                  <div>
-                    <div className="font-semibold text-neutral-900">Address</div>
-                    <div className="text-neutral-600">{restaurant.address}</div>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <Clock className="w-5 h-5 text-primary-500 mt-1 flex-shrink-0" />
-                  <div>
-                    <div className="font-semibold text-neutral-900">Hours</div>
-                    <div className="text-neutral-600">
-                      {restaurant.openingTime.slice(0, 5)} - {restaurant.closingTime.slice(0, 5)}
+          
+          {/* Left: About & Info */}
+          <div className="lg:col-span-2 space-y-8">
+            <Card className="p-8 border-none shadow-xl shadow-neutral-200/50 rounded-3xl">
+              <div className="flex items-center space-x-2 mb-6">
+                <div className="w-1 h-8 bg-primary-600 rounded-full" />
+                <h2 className="text-2xl font-display font-bold text-neutral-900">About the Restaurant</h2>
+              </div>
+              <p className="text-neutral-600 leading-relaxed text-lg italic">
+                "{restaurant.description}"
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-10 pt-8 border-t border-neutral-100">
+                <div className="space-y-6">
+                  <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Contact Details</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-4 group">
+                      <div className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center text-primary-600 group-hover:bg-primary-50 transition-colors">
+                        <Phone className="w-5 h-5" />
+                      </div>
+                      <span className="text-neutral-700 font-medium">{restaurant.phone || 'Contact not available'}</span>
+                    </div>
+                    <div className="flex items-center space-x-4 group">
+                      <div className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center text-primary-600 group-hover:bg-primary-50 transition-colors">
+                        <Mail className="w-5 h-5" />
+                      </div>
+                      <span className="text-neutral-700 font-medium">{restaurant.email}</span>
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-start space-x-3">
-                  <Phone className="w-5 h-5 text-primary-500 mt-1 flex-shrink-0" />
-                  <div>
-                    <div className="font-semibold text-neutral-900">Phone</div>
-                    <div className="text-neutral-600">{restaurant.phone}</div>
-                  </div>
-                </div>
-
-                <div className="flex items-start space-x-3">
-                  <Mail className="w-5 h-5 text-primary-500 mt-1 flex-shrink-0" />
-                  <div>
-                    <div className="font-semibold text-neutral-900">Email</div>
-                    <div className="text-neutral-600">{restaurant.email}</div>
+                <div className="space-y-6">
+                  <h3 className="text-sm font-bold text-neutral-400 uppercase tracking-widest">Location</h3>
+                  <div className="flex items-start space-x-4 group">
+                    <div className="w-10 h-10 rounded-xl bg-neutral-50 flex items-center justify-center text-primary-600 group-hover:bg-primary-50 transition-colors shrink-0">
+                      <MapPin className="w-5 h-5" />
+                    </div>
+                    <span className="text-neutral-700 font-medium leading-relaxed">
+                      {restaurant.name.includes('Chika-an') || restaurant.name.includes('Sachi') || restaurant.address?.includes('SM City Cebu') 
+                        ? 'Cebu Port Center, North Reclamation Area, Juan Luna Ave. cor. Cabahug and Kaoshiung Streets, Mabolo, Cebu City, 6000 Cebu, Philippines'
+                        : restaurant.address}
+                    </span>
                   </div>
                 </div>
               </div>
             </Card>
 
-            {/* Image Gallery */}
-            {restaurant.images && restaurant.images.length > 1 && (
-              <Card>
-                <h2 className="text-2xl font-bold text-neutral-900 mb-6">Gallery</h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                  {restaurant.images.map((image, index) => (
-                    <div key={image.id} className="aspect-square rounded-lg overflow-hidden">
-                      <img
-                        src={image.imageUrl}
-                        alt={`${restaurant.name} ${index + 1}`}
-                        className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+            {/* Visual Gallery Placeholder */}
+            <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+              {restaurant.images?.slice(1, 4).map((img, i) => (
+                <div key={i} className="aspect-square rounded-3xl overflow-hidden shadow-md">
+                  <img src={img.imageUrl} alt="Interior" className="w-full h-full object-cover hover:scale-110 transition-transform duration-700" />
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right: Reservation Widget */}
+          <div className="lg:col-span-1">
+            <div className="sticky top-28">
+              <Card className="p-8 border-none shadow-2xl shadow-primary-900/10 rounded-[32px] bg-white ring-1 ring-neutral-100">
+                <div className="mb-8">
+                  <h3 className="text-2xl font-display font-bold text-neutral-900 mb-2">Book a Table</h3>
+                  <p className="text-neutral-500 text-sm">Secure your spot in seconds</p>
+                </div>
+
+                <div className="space-y-6">
+                  <div>
+                    <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-3">Select Date</label>
+                    <div className="relative">
+                      <Calendar className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-primary-500" />
+                      <input
+                        type="date"
+                        value={reservationDate}
+                        onChange={(e) => setReservationDate(e.target.value)}
+                        min={format(new Date(), 'yyyy-MM-dd')}
+                        className="w-full pl-12 pr-4 py-4 bg-neutral-50 border-none rounded-2xl text-neutral-900 focus:ring-2 focus:ring-primary-500 transition-all font-medium"
                       />
                     </div>
-                  ))}
+                  </div>
+
+                  <GuestSelector 
+                    guestCount={guestCount}
+                    onGuestCountChange={setGuestCount}
+                  />
+                  
+                  <TimeSlotPicker
+                    restaurantId={restaurant.id}
+                    date={reservationDate}
+                    guestCount={guestCount}
+                    selectedTime={selectedTime}
+                    onTimeSelect={setSelectedTime}
+                  />
+
+                  <div>
+                    <label className="block text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-3">Special Requests</label>
+                    <textarea
+                      value={specialNotes}
+                      onChange={(e) => setSpecialNotes(e.target.value)}
+                      placeholder="e.g., Birthday celebration, window seat..."
+                      className="w-full p-5 bg-neutral-50 border-none rounded-2xl text-neutral-900 focus:ring-2 focus:ring-primary-500 transition-all h-32 resize-none text-sm"
+                    />
+                  </div>
+
+                  <Button
+                    onClick={handleReservation}
+                    isLoading={submitting}
+                    disabled={!selectedTime}
+                    className="w-full py-5 bg-primary-600 hover:bg-primary-700 text-white rounded-2xl font-bold text-lg shadow-xl shadow-primary-200 transition-all active:scale-95 disabled:opacity-50"
+                  >
+                    {submitting ? 'Processing...' : 'Proceed to Payment'}
+                  </Button>
+                  
+                  <p className="text-center text-[10px] text-neutral-400 font-medium">
+                    No payment required now. You'll pay at the restaurant.
+                  </p>
                 </div>
               </Card>
-            )}
+            </div>
           </div>
 
-          {/* Right Column - Reservation Form */}
-          <div className="lg:sticky lg:top-24 h-fit">
-            <Card className="shadow-2xl">
-              <div className="mb-6">
-                <h3 className="text-2xl font-bold text-neutral-900 mb-2">Reserve a Table</h3>
-                <p className="text-sm text-neutral-600">Commission: ₱30 per booking</p>
-              </div>
-
-              <div className="space-y-6">
-                {/* Date Picker */}
-                <div>
-                  <label className="flex items-center space-x-2 text-neutral-700 mb-3 font-semibold">
-                    <Calendar className="w-5 h-5 text-primary-500" />
-                    <span>Select Date</span>
-                  </label>
-                  <input
-                    type="date"
-                    value={reservationDate}
-                    onChange={(e) => setReservationDate(e.target.value)}
-                    min={format(new Date(), 'yyyy-MM-dd')}
-                    className="w-full px-4 py-3 bg-white border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none transition-all duration-200"
-                  />
-                </div>
-
-                {/* Guest Selector */}
-                <GuestSelector
-                  guestCount={guestCount}
-                  onGuestCountChange={setGuestCount}
-                />
-
-                {/* Time Slot Picker */}
-                <TimeSlotPicker
-                  restaurantId={restaurant.id}
-                  date={reservationDate}
-                  guestCount={guestCount}
-                  selectedTime={selectedTime}
-                  onTimeSelect={setSelectedTime}
-                />
-
-                {/* Special Notes */}
-                <div>
-                  <label className="block text-neutral-700 mb-2 font-semibold">
-                    Special Notes (Optional)
-                  </label>
-                  <textarea
-                    value={specialNotes}
-                    onChange={(e) => setSpecialNotes(e.target.value)}
-                    placeholder="E.g., Birthday celebration, dietary restrictions..."
-                    rows={3}
-                    className="w-full px-4 py-3 bg-white border-2 border-neutral-200 rounded-xl focus:border-primary-500 focus:outline-none transition-all duration-200 resize-none"
-                  />
-                </div>
-
-                {/* Reserve Button */}
-                <Button
-                  variant="primary"
-                  size="lg"
-                  fullWidth
-                  onClick={handleReservation}
-                  isLoading={submitting}
-                  disabled={!selectedTime}
-                >
-                  Proceed to Payment
-                </Button>
-
-                <p className="text-xs text-center text-neutral-500">
-                  You will be charged ₱100 as reservation fee
-                </p>
-              </div>
-            </Card>
-          </div>
         </div>
       </div>
     </div>

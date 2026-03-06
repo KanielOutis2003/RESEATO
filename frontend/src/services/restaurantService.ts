@@ -1,58 +1,670 @@
-import api, { handleApiError } from './api';
-import { Restaurant, RestaurantFilters } from '../../../shared/types';
+// frontend/src/services/restaurantService.ts
+import { supabase } from '../config/supabase'
 
 class RestaurantService {
-  async getAllRestaurants(filters?: RestaurantFilters): Promise<Restaurant[]> {
+  async getAllRestaurants(filters?: any) {
+    let query = supabase
+      .from('restaurants')
+      .select('*, restaurant_images(*)')
+      .eq('is_active', true)
+
+    if (filters?.cuisine) {
+      query = query.eq('cuisine_type', filters.cuisine)
+    }
+
+    if (filters?.search) {
+      query = query.or(`name.ilike.%${filters.search}%,description.ilike.%${filters.search}%`)
+    }
+
+    if (filters?.rating) {
+      query = query.gte('rating', filters.rating)
+    }
+
+    const { data, error } = await query.order('rating', { ascending: false })
+
+    if (error) throw new Error(error.message)
+    const rows = data || []
+    const mapped = rows.map((r: any) => {
+      const images = (r.restaurant_images || r.images || []).map((img: any) => ({
+        id: img.id,
+        imageUrl: img.imageUrl || img.url || img.image_url,
+        isPrimary: img.isPrimary ?? img.is_primary ?? false,
+      }))
+      return {
+        ...r,
+        images,
+        cuisineType: r.cuisine_type ?? r.cuisineType,
+        openingTime: r.opening_time ?? r.openingTime,
+        closingTime: r.closing_time ?? r.closingTime,
+        rating: typeof r.rating === 'number' ? r.rating : 0,
+        totalReviews: r.total_reviews ?? r.totalReviews ?? 0,
+        description: r.description || 'Welcome to our restaurant! We serve the finest dishes in town with a focus on quality and taste.',
+      }
+    })
+    if (mapped.length > 0) return mapped
+    return this.getFallbackData()
+  }
+
+  getFallbackData() {
+    return [
+      {
+        id: 'demo-cabalen',
+        ownerId: '',
+        name: 'Cabalen',
+        description: 'Authentic Filipino buffet with a focus on Kapampangan cuisine. Cabalen is famous for its Kapampangan buffet, offering a wide array of Filipino favorites from appetizers to desserts. Experience the best of home-style Filipino cooking in a festive, all-you-can-eat setting.',
+        cuisine: 'Filipino',
+        cuisineType: 'Buffet',
+        address: 'SM Seaside City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '(032) 254 9000',
+        email: 'info@cabalen.ph',
+        website: 'https://www.cabalen.ph',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '21:00',
+        images: [{ id: 'img1', imageUrl: 'https://static.wixstatic.com/media/382e5f_c8208f93156f478986728e53bd9e331c~mv2.png/v1/fill/w_551,h_551,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/382e5f_c8208f93156f478986728e53bd9e331c~mv2.png', isPrimary: true }],
+        tables: [],
+        rating: 5.0,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'demo-seoul',
+        ownerId: '',
+        name: 'Seoul Black',
+        description: 'Premium Korean barbecue and comfort dishes. Seoul Black offers an authentic Korean dining experience with high-quality meats, traditional side dishes, and a modern atmosphere. Perfect for groups and families who enjoy interactive grilling and hearty Korean stews.',
+        cuisine: 'Korean',
+        cuisineType: 'Korean',
+        address: 'SM Seaside City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '0927 508 6275',
+        email: 'contact@seoulblack.com',
+        website: '',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '22:00',
+        images: [{ id: 'img2', imageUrl: 'https://scontent.fcgy2-1.fna.fbcdn.net/v/t39.30808-6/485876367_694469239918258_9125476005181298509_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=106&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeFwsFoVlsljRNeiAWcsYM31CGoaho-QLpUIahqGj5AulXwBKaLL6u-vFc5uLYD0EX6QkjHHgODbzL6YkAaKqgmG&_nc_ohc=FDVrt-HyGUcQ7kNvwHknBc_&_nc_oc=AdkFRAwbfcqrhSEogmmd7RyppKzrCAXKWShNZBLsrBDGopdovZEy-4wnSDqIFjr8qFiL0P2wqcIKR4o9TxhKEptn&_nc_zt=23&_nc_ht=scontent.fcgy2-1.fna&_nc_gid=WWFeXMbuZII_UBTUd2oBAA&oh=00_AftDYdJk3zB6hdBpClptcvC0BhQ6a-mXS-CoJ8e0owh1hg&oe=69A32EA3', isPrimary: true }],
+        tables: [],
+        rating: 4.8,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'demo-sachi',
+        ownerId: '',
+        name: 'Sachi Ramen',
+        description: 'Authentic Japanese ramen and rice bowls. Sachi Ramen specializes in rich, flavorful broths and house-made noodles. From our signature Tonkotsu to spicy Tantanmen, every bowl is crafted with passion and traditional Japanese techniques.',
+        cuisine: 'Japanese',
+        cuisineType: 'Ramen',
+        address: 'SM City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '(032) 412 4567',
+        email: 'info@sachiramen.com',
+        website: '',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '21:00',
+        images: [{ id: 'img3', imageUrl: 'https://images.hive.blog/0x0/https://files.peakd.com/file/peakd-hive/indayclara/EoK5NFgi4KCW5c22sGaZwB392hCmsnycZwK7ECbmB4gr6wW4nbao2wKLGU4y8XsYgR2.jpg', isPrimary: true }],
+        tables: [],
+        rating: 4.9,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'demo-boy-belly',
+        ownerId: '',
+        name: 'Boy Belly',
+        description: 'Cebu\'s favorite Lechon Belly and Filipino specialties. Boy Belly brings the iconic taste of Cebuano lechon to the table, along with a variety of grilled favorites and home-style Filipino dishes that celebrate local flavors.',
+        cuisine: 'Filipino',
+        cuisineType: 'Filipino',
+        address: 'SM Seaside City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '(032) 123 9999',
+        email: 'info@boybelly.com',
+        website: '',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '21:00',
+        images: [{ id: 'img4', imageUrl: 'https://scontent.fceb1-3.fna.fbcdn.net/v/t39.30808-6/499178510_670252335901912_5015432747052094833_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeH3z5bxo33F_pj_jCFSzelfEugl2qr4Oc0S6CXaqvg5zVxE8fYJ-yPA8MFO3aVWtiLm_xgEtuKK-OzP6SFyax8L&_nc_ohc=cFe9ktJ3waMQ7kNvwFFwAKo&_nc_oc=AdlAqOUFiGs6L6aAbg4I4i3A9PNjBc_pPoldIWYzEmosO85ip8on8uA1ZrVkag6pJB6Dibunch-vWLYSFLwbo1Jc&_nc_zt=23&_nc_ht=scontent.fceb1-3.fna&_nc_gid=2BqukcnRRSExTy3LVv7lTA&oh=00_AfuER70DUjNlssIDzaUd8GOGdbnshcJUMvpHUtgRuIDfZw&oe=69A4CEDB', isPrimary: true }],
+        tables: [],
+        rating: 4.8,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'demo-chikaan',
+        ownerId: '',
+        name: 'Chika-an Cebuano Kitchen',
+        description: 'Cebuano classics and home-style cooking.',
+        cuisine: 'Filipino',
+        cuisineType: 'Filipino',
+        address: 'SM City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '',
+        email: '',
+        website: '',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '21:00',
+        images: [{ id: 'img5', imageUrl: 'https://scontent.fcgy2-2.fna.fbcdn.net/v/t39.30808-6/539011713_1198754658955735_5756152376187219456_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=2a1932&_nc_eui2=AeFDtrgY9oHFj7y2tnsqgU60-R1EHHT7obb5HUQcdPuhtqzoh1BLq_Mp6rr6rye00G0Dfn9XteYbpVZeD5ArU6pz&_nc_ohc=b1MwI5EbNIMQ7kNvwFg8FTZ&_nc_oc=AdnJw8ZMZQOLCEtgjRwsB_7ruGlTxnk4ZfZ1drVoepKm148AtSJCTJGSTVFDWjhZObRXA51DCqL6BNHbRtZWT_E5&_nc_zt=23&_nc_ht=scontent.fcgy2-2.fna&_nc_gid=cwHHZEu-07JPRxTEbXEaDw&oh=00_AftCahtssXlyt8feWKxmzVETtI_Y1fcTp6rUJrgDFmmF3g&oe=69A342BE', isPrimary: true }],
+        tables: [],
+        rating: 4.2,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'demo-kuya-j',
+        ownerId: '',
+        name: 'Kuya J',
+        description: 'Filipino meals and famous halo-halo.',
+        cuisine: 'Filipino',
+        cuisineType: 'Filipino',
+        address: 'SM Seaside City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '',
+        email: '',
+        website: '',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '21:00',
+        images: [{ id: 'img6', imageUrl: 'https://d3up48wss6lvj.cloudfront.net/data/uploads/2021/08/KuyaJ0d5b4t8tb1tb.png', isPrimary: true }],
+        tables: [],
+        rating: 4.0,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'demo-mesa',
+        ownerId: '',
+        name: 'Mesa Restaurant Philippines',
+        description: 'Modern Filipino dishes with a twist.',
+        cuisine: 'Filipino',
+        cuisineType: 'Filipino',
+        address: 'SM City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '',
+        email: '',
+        website: '',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '21:00',
+        images: [{ id: 'img7', imageUrl: 'https://scontent.fcgy2-3.fna.fbcdn.net/v/t39.30808-6/616782352_1296618849178000_1669063287155888127_n.png?_nc_cat=111&ccb=1-7&_nc_sid=2a1932&_nc_eui2=AeERrTqtZt-UR99t9xnWcFA-m6sLLfgExpWbqwst-ATGlQ0-mar1K3t5hMOZKyRr51o-M5rsGgLKajUVjgIUOIY-&_nc_ohc=2_qGWFV8VlcQ7kNvwG4fcFJ&_nc_oc=AdnYOg1e6CzSrsSqs24t3MJxNg_ZjoUH7B03P9qT-pkLilG-a5IxW-BAXB-W1R6gXwyKuDVt37i_bC4cZjSPWLM1&_nc_zt=23&_nc_ht=scontent.fcgy2-3.fna&_nc_gid=JA1-vP4MrbBtCqYCpXI1IA&oh=00_Afvxfjv9aONRR6N4xkDe4-Q6Cf8sDgJ9bdMlTfCNzDpn8Q&oe=69A339B3', isPrimary: true }],
+        tables: [],
+        rating: 4.1,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'demo-seafood-ribs',
+        ownerId: '',
+        name: 'Seafood & Ribs Warehouse',
+        description: 'Seafood platters and hearty ribs.',
+        cuisine: 'Seafood',
+        cuisineType: 'Seafood',
+        address: 'SM City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '',
+        email: '',
+        website: '',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '21:00',
+        images: [{ id: 'img8', imageUrl: 'https://foods.nowinquire.com/public/img/stores/SM%20City%20North%20EDSA/North%20Tower/Ground%20Level/SOUTH/SEAFOOD%20%26%20RIBS%20WAREHOUSE%20RESTAURANT.webp?v=2025-10-04', isPrimary: true }],
+        tables: [],
+        rating: 4.0,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'demo-somac',
+        ownerId: '',
+        name: 'Somac Korean Restaurant',
+        description: 'Korean favorites and grilled dishes.',
+        cuisine: 'Korean',
+        cuisineType: 'Korean',
+        address: 'SM Seaside City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '',
+        email: '',
+        website: '',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '22:00',
+        images: [{ id: 'img9', imageUrl: 'https://scontent.fcgy2-3.fna.fbcdn.net/v/t39.30808-6/469391101_122209032254195669_8038791638466162881_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=2a1932&_nc_eui2=AeEKGkoyNYc4ptK2rDZHDhN3vjBcTljKE9G-MFxOWMoT0b3BFasg3nf1Oi2EZEnKuhFzj_6qESs01P2ryQQrG6TC&_nc_ohc=5ScFNrN-yiwQ7kNvwE7Mf7A&_nc_oc=AdmX21Gg9N6lWQxq-aNUH_CqX13DAEgF8R-PYHCXdSy17tPBQiOmFa_F8yLG-sgpWLMhPicAEqk_eUFQgKsDHf_h&_nc_zt=23&_nc_ht=scontent.fcgy2-3.fna&_nc_gid=jG4Qwkmbjzym4_JXwYUoqg&oh=00_Afuf0xny8GOI8VZwvo3OsgR08wCH9GVSCuxTGL9Wfj4G_w&oe=69A34EA8', isPrimary: true }],
+        tables: [],
+        rating: 4.0,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'demo-superbowl',
+        ownerId: '',
+        name: 'Superbowl of China',
+        description: 'Classic Chinese dishes for the family.',
+        cuisine: 'Chinese',
+        cuisineType: 'Chinese',
+        address: 'SM City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '',
+        email: '',
+        website: '',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '21:00',
+        images: [{ id: 'img10', imageUrl: 'https://scontent.fcgy2-1.fna.fbcdn.net/v/t39.30808-6/599622729_1300728905416080_1204480223111860567_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeHHfYk-2Qbk84YXVk2WB9KMWFoWfRVljM5YWhZ9FWWMziKt4HFWEqEW1ZxLSFvNAWowOHY6bOpG1wdQ7i-t_5_8&_nc_ohc=8gVeJSUSPFcQ7kNvwFvuA0S&_nc_oc=Adk1B3QpS922IMkOSdwybBEXhK6RPAIFgB-fuf_NZTdXaxaNqPKBMT-xW4w5Fg_fxTeh9yPctImCM018BssvHy5E&_nc_zt=23&_nc_ht=scontent.fcgy2-1.fna&_nc_gid=6GNBexgGc9XmVj_xhby0jQ&oh=00_AfsOQVZ7Hw7vfrk5RatuKwcr7UBNpdwCTnz1lwOkxsNz9A&oe=69A3325E', isPrimary: true }],
+        tables: [],
+        rating: 4.0,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ]
+    return fallback
+  }
+
+  async getRestaurantById(id: string) {
     try {
-      const params = new URLSearchParams();
+      const { data, error } = await supabase
+        .from('restaurants')
+        .select('*, restaurant_images(*)')
+        .eq('id', id)
+        .single()
+
+      if (error) {
+        console.warn(`Supabase error fetching restaurant ${id}:`, error.message);
+        // If not found in DB, try fallback data
+        const fallback = this.getFallbackData().find(r => r.id === id);
+        if (fallback) return fallback;
+        throw new Error(error.message);
+      }
       
-      if (filters?.cuisine) params.append('cuisine', filters.cuisine);
-      if (filters?.search) params.append('search', filters.search);
-      if (filters?.rating) params.append('rating', filters.rating.toString());
-      if (filters?.openNow) params.append('openNow', 'true');
+      if (!data) {
+        const fallback = this.getFallbackData().find(r => r.id === id);
+        if (fallback) return fallback;
+        return null as any;
+      }
 
-      const response = await api.get(`/restaurants?${params.toString()}`);
-      return response.data.data;
-    } catch (error) {
-      throw new Error(handleApiError(error));
+      const r: any = data;
+      const images = (r.restaurant_images || r.images || []).map((img: any) => ({
+        id: img.id,
+        imageUrl: img.imageUrl || img.url || img.image_url,
+        isPrimary: img.isPrimary ?? img.is_primary ?? false,
+      }))
+      return {
+        ...r,
+        images,
+        cuisineType: r.cuisine_type ?? r.cuisineType,
+        openingTime: r.opening_time ?? r.openingTime,
+        closingTime: r.closing_time ?? r.closingTime,
+        rating: typeof r.rating === 'number' ? r.rating : 0,
+        totalReviews: r.total_reviews ?? r.totalReviews ?? 0,
+      }
+    } catch (err) {
+      console.error('Error in getRestaurantById:', err);
+      // Last resort fallback
+      const fallback = this.getFallbackData().find(r => r.id === id);
+      if (fallback) return fallback;
+      throw err;
     }
   }
 
-  async getRestaurantById(id: string): Promise<Restaurant> {
-    try {
-      const response = await api.get(`/restaurants/${id}`);
-      return response.data.data;
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
+  private getFallbackData() {
+    return [
+      {
+        id: 'demo-cabalen',
+        ownerId: '',
+        name: 'Cabalen',
+        description: 'Authentic Filipino buffet with a focus on Kapampangan cuisine.',
+        cuisine: 'Filipino',
+        cuisineType: 'Filipino',
+        address: 'SM Seaside City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '',
+        email: '',
+        website: '',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '21:00',
+        images: [{ id: 'img1', imageUrl: 'https://static.wixstatic.com/media/382e5f_c8208f93156f478986728e53bd9e331c~mv2.png/v1/fill/w_551,h_551,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/382e5f_c8208f93156f478986728e53bd9e331c~mv2.png', isPrimary: true }],
+        tables: [],
+        rating: 4.3,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'demo-seoul',
+        ownerId: '',
+        name: 'Seoul Black',
+        description: 'Korean barbecue and comfort dishes.',
+        cuisine: 'Korean',
+        cuisineType: 'Korean',
+        address: 'SM Seaside City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '',
+        email: '',
+        website: '',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '22:00',
+        images: [{ id: 'img2', imageUrl: 'https://scontent.fcgy2-1.fna.fbcdn.net/v/t39.30808-6/485876367_694469239918258_9125476005181298509_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=106&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeFwsFoVlsljRNeiAWcsYM31CGoaho-QLpUIahqGj5AulXwBKaLL6u-vFc5uLYD0EX6QkjHHgODbzL6YkAaKqgmG&_nc_ohc=FDVrt-HyGUcQ7kNvwHknBc_&_nc_oc=AdkFRAwbfcqrhSEogmmd7RyppKzrCAXKWShNZBLsrBDGopdovZEy-4wnSDqIFjr8qFiL0P2wqcIKR4o9TxhKEptn&_nc_zt=23&_nc_ht=scontent.fcgy2-1.fna&_nc_gid=WWFeXMbuZII_UBTUd2oBAA&oh=00_AftDYdJk3zB6hdBpClptcvC0BhQ6a-mXS-CoJ8e0owh1hg&oe=69A32EA3', isPrimary: true }],
+        tables: [],
+        rating: 4.1,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'demo-sachi',
+        ownerId: '',
+        name: 'Sachi Ramen',
+        description: 'Japanese ramen and rice bowls.',
+        cuisine: 'Japanese',
+        cuisineType: 'Japanese',
+        address: 'SM City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '',
+        email: '',
+        website: '',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '21:00',
+        images: [{ id: 'img3', imageUrl: 'https://images.hive.blog/0x0/https://files.peakd.com/file/peakd-hive/indayclara/EoK5NFgi4KCW5c22sGaZwB392hCmsnycZwK7ECbmB4gr6wW4nbao2wKLGU4y8XsYgR2.jpg', isPrimary: true }],
+        tables: [],
+        rating: 4.2,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'demo-boy-belly',
+        ownerId: '',
+        name: 'Boy Belly',
+        description: 'Filipino favorites and grills.',
+        cuisine: 'Filipino',
+        cuisineType: 'Filipino',
+        address: 'SM Seaside City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '',
+        email: '',
+        website: '',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '21:00',
+        images: [{ id: 'img4', imageUrl: 'https://orangemagazine.ph/wp-content/uploads/2025/02/SM-Seaside-City-Cebu.png', isPrimary: true }],
+        tables: [],
+        rating: 4.0,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'demo-chikaan',
+        ownerId: '',
+        name: 'Chika-an Cebuano Kitchen',
+        description: 'Cebuano classics and home-style cooking.',
+        cuisine: 'Filipino',
+        cuisineType: 'Filipino',
+        address: 'SM City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '',
+        email: '',
+        website: '',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '21:00',
+        images: [{ id: 'img5', imageUrl: 'https://scontent.fcgy2-2.fna.fbcdn.net/v/t39.30808-6/539011713_1198754658955735_5756152376187219456_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=2a1932&_nc_eui2=AeFDtrgY9oHFj7y2tnsqgU60-R1EHHT7obb5HUQcdPuhtqzoh1BLq_Mp6rr6rye00G0Dfn9XteYbpVZeD5ArU6pz&_nc_ohc=b1MwI5EbNIMQ7kNvwFg8FTZ&_nc_oc=AdnJw8ZMZQOLCEtgjRwsB_7ruGlTxnk4ZfZ1drVoepKm148AtSJCTJGSTVFDWjhZObRXA51DCqL6BNHbRtZWT_E5&_nc_zt=23&_nc_ht=scontent.fcgy2-2.fna&_nc_gid=cwHHZEu-07JPRxTEbXEaDw&oh=00_AftCahtssXlyt8feWKxmzVETtI_Y1fcTp6rUJrgDFmmF3g&oe=69A342BE', isPrimary: true }],
+        tables: [],
+        rating: 4.2,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'demo-kuya-j',
+        ownerId: '',
+        name: 'Kuya J',
+        description: 'Filipino meals and famous halo-halo.',
+        cuisine: 'Filipino',
+        cuisineType: 'Filipino',
+        address: 'SM Seaside City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '',
+        email: '',
+        website: '',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '21:00',
+        images: [{ id: 'img6', imageUrl: 'https://d3up48wss6lvj.cloudfront.net/data/uploads/2021/08/KuyaJ0d5b4t8tb1tb.png', isPrimary: true }],
+        tables: [],
+        rating: 4.0,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'demo-mesa',
+        ownerId: '',
+        name: 'Mesa Restaurant Philippines',
+        description: 'Modern Filipino dishes with a twist.',
+        cuisine: 'Filipino',
+        cuisineType: 'Filipino',
+        address: 'SM City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '',
+        email: '',
+        website: '',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '21:00',
+        images: [{ id: 'img7', imageUrl: 'https://scontent.fcgy2-3.fna.fbcdn.net/v/t39.30808-6/616782352_1296618849178000_1669063287155888127_n.png?_nc_cat=111&ccb=1-7&_nc_sid=2a1932&_nc_eui2=AeERrTqtZt-UR99t9xnWcFA-m6sLLfgExpWbqwst-ATGlQ0-mar1K3t5hMOZKyRr51o-M5rsGgLKajUVjgIUOIY-&_nc_ohc=2_qGWFV8VlcQ7kNvwG4fcFJ&_nc_oc=AdnYOg1e6CzSrsSqs24t3MJxNg_ZjoUH7B03P9qT-pkLilG-a5IxW-BAXB-W1R6gXwyKuDVt37i_bC4cZjSPWLM1&_nc_zt=23&_nc_ht=scontent.fcgy2-3.fna&_nc_gid=JA1-vP4MrbBtCqYCpXI1IA&oh=00_Afvxfjv9aONRR6N4xkDe4-Q6Cf8sDgJ9bdMlTfCNzDpn8Q&oe=69A339B3', isPrimary: true }],
+        tables: [],
+        rating: 4.1,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'demo-seafood-ribs',
+        ownerId: '',
+        name: 'Seafood & Ribs Warehouse',
+        description: 'Seafood platters and hearty ribs.',
+        cuisine: 'Seafood',
+        cuisineType: 'Seafood',
+        address: 'SM City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '',
+        email: '',
+        website: '',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '21:00',
+        images: [{ id: 'img8', imageUrl: 'https://foods.nowinquire.com/public/img/stores/SM%20City%20North%20EDSA/North%20Tower/Ground%20Level/SOUTH/SEAFOOD%20%26%20RIBS%20WAREHOUSE%20RESTAURANT.webp?v=2025-10-04', isPrimary: true }],
+        tables: [],
+        rating: 4.0,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'demo-somac',
+        ownerId: '',
+        name: 'Somac Korean Restaurant',
+        description: 'Korean favorites and grilled dishes.',
+        cuisine: 'Korean',
+        cuisineType: 'Korean',
+        address: 'SM Seaside City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '',
+        email: '',
+        website: '',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '22:00',
+        images: [{ id: 'img9', imageUrl: 'https://scontent.fcgy2-3.fna.fbcdn.net/v/t39.30808-6/469391101_122209032254195669_8038791638466162881_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=2a1932&_nc_eui2=AeEKGkoyNYc4ptK2rDZHDhN3vjBcTljKE9G-MFxOWMoT0b3BFasg3nf1Oi2EZEnKuhFzj_6qESs01P2ryQQrG6TC&_nc_ohc=5ScFNrN-yiwQ7kNvwE7Mf7A&_nc_oc=AdmX21Gg9N6lWQxq-aNUH_CqX13DAEgF8R-PYHCXdSy17tPBQiOmFa_F8yLG-sgpWLMhPicAEqk_eUFQgKsDHf_h&_nc_zt=23&_nc_ht=scontent.fcgy2-3.fna&_nc_gid=jG4Qwkmbjzym4_JXwYUoqg&oh=00_Afuf0xny8GOI8VZwvo3OsgR08wCH9GVSCuxTGL9Wfj4G_w&oe=69A34EA8', isPrimary: true }],
+        tables: [],
+        rating: 4.0,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+      {
+        id: 'demo-superbowl',
+        ownerId: '',
+        name: 'Superbowl of China',
+        description: 'Classic Chinese dishes for the family.',
+        cuisine: 'Chinese',
+        cuisineType: 'Chinese',
+        address: 'SM City Cebu',
+        city: 'Cebu',
+        zipCode: '',
+        phone: '',
+        email: '',
+        website: '',
+        openingHours: {},
+        openingTime: '10:00',
+        closingTime: '21:00',
+        images: [{ id: 'img10', imageUrl: 'https://scontent.fcgy2-1.fna.fbcdn.net/v/t39.30808-6/599622729_1300728905416080_1204480223111860567_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeHHfYk-2Qbk84YXVk2WB9KMWFoWfRVljM5YWhZ9FWWMziKt4HFWEqEW1ZxLSFvNAWowOHY6bOpG1wdQ7i-t_5_8&_nc_ohc=8gVeJSUSPFcQ7kNvwFvuA0S&_nc_oc=Adk1B3QpS922IMkOSdwybBEXhK6RPAIFgB-fuf_NZTdXaxaNqPKBMT-xW4w5Fg_fxTeh9yPctImCM018BssvHy5E&_nc_zt=23&_nc_ht=scontent.fcgy2-1.fna&_nc_gid=6GNBexgGc9XmVj_xhby0jQ&oh=00_AfsOQVZ7Hw7vfrk5RatuKwcr7UBNpdwCTnz1lwOkxsNz9A&oe=69A3325E', isPrimary: true }],
+        tables: [],
+        rating: 4.0,
+        reviewCount: 0,
+        totalReviews: 0,
+        latitude: undefined,
+        longitude: undefined,
+        isActive: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    ]
   }
 
-  async getMyRestaurant(): Promise<Restaurant> {
-    try {
-      const response = await api.get('/restaurants/vendor/my-restaurant');
-      return response.data.data;
-    } catch (error) {
-      throw new Error(handleApiError(error));
+  async getMyRestaurantByOwnerId(ownerId: string) {
+    const { data, error } = await supabase
+      .from('restaurants')
+      .select('*')
+      .eq('owner_id', ownerId)
+      .single()
+
+    if (error) {
+      // If no real restaurant in DB, check fallback data for demo accounts
+      const fallbacks = this.getFallbackData();
+      const { data: { user } } = await supabase.auth.getUser();
+      const demoResto = fallbacks.find(r => r.email === user?.email);
+      if (demoResto) return demoResto;
+      return null;
     }
+    return data
   }
 
-  async createRestaurant(data: any): Promise<Restaurant> {
-    try {
-      const response = await api.post('/restaurants/vendor/create', data);
-      return response.data.data;
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
-  }
-
-  async updateRestaurant(id: string, data: any): Promise<Restaurant> {
-    try {
-      const response = await api.put(`/restaurants/vendor/${id}`, data);
-      return response.data.data;
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
+  async getMyRestaurant() {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) return null
+    return this.getMyRestaurantByOwnerId(user.id)
   }
 }
 
-export default new RestaurantService();
+export default new RestaurantService()

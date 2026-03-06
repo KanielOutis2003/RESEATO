@@ -1,4 +1,4 @@
-import api, { handleApiError } from './api';
+import { supabase } from '../config/supabase';
 
 export interface Notification {
   id: string;
@@ -12,27 +12,50 @@ export interface Notification {
 class NotificationService {
   async getNotifications(): Promise<Notification[]> {
     try {
-      const response = await api.get('/notifications');
-      return response.data.data;
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      return (data || []).map(n => ({
+        id: n.id,
+        userId: n.user_id,
+        title: n.title,
+        message: n.message,
+        isRead: n.is_read,
+        createdAt: n.created_at
+      }));
     } catch (error) {
-      throw new Error(handleApiError(error));
+      console.error('Failed to get notifications:', error);
+      return [];
     }
   }
 
   async markAsRead(notificationId: string): Promise<void> {
-    try {
-      await api.put(`/notifications/${notificationId}/read`);
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('id', notificationId);
+    
+    if (error) throw error;
   }
 
   async markAllAsRead(): Promise<void> {
-    try {
-      await api.put('/notifications/read-all');
-    } catch (error) {
-      throw new Error(handleApiError(error));
-    }
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('notifications')
+      .update({ is_read: true })
+      .eq('user_id', user.id);
+    
+    if (error) throw error;
   }
 }
 
