@@ -16,7 +16,7 @@ const seed = async () => {
     // 1. Create Admin and Customer Users
     const baseUsers = [
       {
-        email: 'admin@example.com',
+        email: 'admin@reseato.com',
         password: passwordHash,
         firstName: 'Admin',
         lastName: 'User',
@@ -24,7 +24,7 @@ const seed = async () => {
         phone: '09123456789'
       },
       {
-        email: 'customer@example.com',
+        email: 'customer@reseato.com',
         password: passwordHash,
         firstName: 'Jane',
         lastName: 'Customer',
@@ -62,11 +62,11 @@ const seed = async () => {
         opening_time: '10:00:00',
         closing_time: '21:00:00',
         is_active: true,
-        rating: 4.3,
+        rating: 5.0,
         total_reviews: 180,
         latitude: 10.2830,
         longitude: 123.8855,
-        image: '/assets/images/cabalen.avif'
+        image: 'https://static.wixstatic.com/media/382e5f_c8208f93156f478986728e53bd9e331c~mv2.png/v1/fill/w_551,h_551,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/382e5f_c8208f93156f478986728e53bd9e331c~mv2.png'
       },
       {
         owner: {
@@ -86,11 +86,11 @@ const seed = async () => {
         opening_time: '10:00:00',
         closing_time: '21:00:00',
         is_active: true,
-        rating: 4.6,
+        rating: 4.8,
         total_reviews: 150,
         latitude: 10.3115,
         longitude: 123.9180,
-        image: '/assets/images/Chika-an Cebu Kitchen.jpg'
+        image: 'https://scontent.fcgy2-2.fna.fbcdn.net/v/t39.30808-6/539011713_1198754658955735_5756152376187219456_n.jpg?_nc_cat=109&ccb=1-7&_nc_sid=2a1932&_nc_eui2=AeFDtrgY9oHFj7y2tnsqgU60-R1EHHT7obb5HUQcdPuhtqzoh1BLq_Mp6rr6rye00G0Dfn9XteYbpVZeD5ArU6pz&_nc_ohc=b1MwI5EbNIMQ7kNvwFg8FTZ&_nc_oc=AdnJw8ZMZQOLCEtgjRwsB_7ruGlTxnk4ZfZ1drVoepKm148AtSJCTJGSTVFDWjhZObRXA51DCqL6BNHbRtZWT_E5&_nc_zt=23&_nc_ht=scontent.fcgy2-2.fna&_nc_gid=cwHHZEu-07JPRxTEbXEaDw&oh=00_AftCahtssXlyt8feWKxmzVETtI_Y1fcTp6rUJrgDFmmF3g&oe=69A342BE'
       },
       {
         owner: {
@@ -110,11 +110,11 @@ const seed = async () => {
         opening_time: '10:00:00',
         closing_time: '21:00:00',
         is_active: true,
-        rating: 4.4,
+        rating: 4.9,
         total_reviews: 200,
         latitude: 10.3116,
         longitude: 123.9181,
-        image: '/assets/images/Superbowl of China.jpg'
+        image: 'https://scontent.fcgy2-1.fna.fbcdn.net/v/t39.30808-6/599622729_1300728905416080_1204480223111860567_n.jpg?_nc_cat=107&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeHHfYk-2Qbk84YXVk2WB9KMWFoWfRVljM5YWhZ9FWWMziKt4HFWEqEW1ZxLSFvNAWowOHY6bOpG1wdQ7i-t_5_8&_nc_ohc=8gVeJSUSPFcQ7kNvwFvuA0S&_nc_oc=Adk1B3QpS922IMkOSdwybBEXhK6RPAIFgB-fuf_NZTdXaxaNqPKBMT-xW4w5Fg_fxTeh9yPctImCM018BssvHy5E&_nc_zt=23&_nc_ht=scontent.fcgy2-1.fna&_nc_gid=6GNBexgGc9XmVj_xhby0jQ&oh=00_AfsOQVZ7Hw7vfrk5RatuKwcr7UBNpdwCTnz1lwOkxsNz9A&oe=69A3325E'
       },
       {
         owner: {
@@ -134,11 +134,11 @@ const seed = async () => {
         opening_time: '11:00:00',
         closing_time: '22:00:00',
         is_active: true,
-        rating: 4.7,
+        rating: 5.0,
         total_reviews: 80,
         latitude: 10.3117,
         longitude: 123.9182,
-        image: '/assets/images/Sachi Ramen.jpg'
+        image: 'https://images.hive.blog/0x0/https://files.peakd.com/file/peakd-hive/indayclara/EoK5NFgi4KCW5c22sGaZwB392hCmsnycZwK7ECbmB4gr6wW4nbao2wKLGU4y8XsYgR2.jpg'
       },
       {
         owner: {
@@ -158,11 +158,11 @@ const seed = async () => {
         opening_time: '10:00:00',
         closing_time: '21:00:00',
         is_active: true,
-        rating: 4.5,
+        rating: 4.8,
         total_reviews: 45,
         latitude: 10.2829,
         longitude: 123.8854,
-        image: '/assets/images/Seoul Black.jpg'
+        image: 'https://scontent.fcgy2-1.fna.fbcdn.net/v/t39.30808-6/485876367_694469239918258_9125476005181298509_n.jpg?stp=cp6_dst-jpg_tt6&_nc_cat=106&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeFwsFoVlsljRNeiAWcsYM31CGoaho-QLpUIahqGj5AulXwBKaLL6u-vFc5uLYD0EX6QkjHHgODbzL6YkAaKqgmG&_nc_ohc=FDVrt-HyGUcQ7kNvwHknBc_&_nc_oc=AdkFRAwbfcqrhSEogmmd7RyppKzrCAXKWShNZBLsrBDGopdovZEy-4wnSDqIFjr8qFiL0P2wqcIKR4o9TxhKEptn&_nc_zt=23&_nc_ht=scontent.fcgy2-1.fna&_nc_gid=WWFeXMbuZII_UBTUd2oBAA&oh=00_AftDYdJk3zB6hdBpClptcvC0BhQ6a-mXS-CoJ8e0owh1hg&oe=69A32EA3'
       },
       {
         owner: {
@@ -182,11 +182,11 @@ const seed = async () => {
         opening_time: '10:00:00',
         closing_time: '21:00:00',
         is_active: true,
-        rating: 4.6,
+        rating: 4.9,
         total_reviews: 110,
         latitude: 10.2829,
         longitude: 123.8854,
-        image: '/assets/images/Seafood & Ribs warehouse.webp'
+        image: 'https://foods.nowinquire.com/public/img/stores/SM%20City%20North%20EDSA/North%20Tower/Ground%20Level/SOUTH/SEAFOOD%20%26%20RIBS%20WAREHOUSE%20RESTAURANT.webp?v=2025-10-04'
       },
       {
         owner: {
@@ -206,11 +206,11 @@ const seed = async () => {
         opening_time: '10:00:00',
         closing_time: '21:00:00',
         is_active: true,
-        rating: 4.4,
+        rating: 4.8,
         total_reviews: 200,
         latitude: 10.2829,
         longitude: 123.8854,
-        image: '/assets/images/Kuya J.png'
+        image: 'https://d3up48wss6lvj.cloudfront.net/data/uploads/2021/08/KuyaJ0d5b4t8tb1tb.png'
       },
       {
         owner: {
@@ -230,11 +230,11 @@ const seed = async () => {
         opening_time: '11:00:00',
         closing_time: '21:00:00',
         is_active: true,
-        rating: 4.8,
+        rating: 5.0,
         total_reviews: 150,
         latitude: 10.2829,
         longitude: 123.8854,
-        image: '/assets/images/SoMac.jpg'
+        image: 'https://scontent.fcgy2-3.fna.fbcdn.net/v/t39.30808-6/469391101_122209032254195669_8038791638466162881_n.jpg?_nc_cat=111&ccb=1-7&_nc_sid=2a1932&_nc_eui2=AeEKGkoyNYc4ptK2rDZHDhN3vjBcTljKE9G-MFxOWMoT0b3BFasg3nf1Oi2EZEnKuhFzj_6qESs01P2ryQQrG6TC&_nc_ohc=5ScFNrN-yiwQ7kNvwE7Mf7A&_nc_oc=AdmX21Gg9N6lWQxq-aNUH_CqX13DAEgF8R-PYHCXdSy17tPBQiOmFa_F8yLG-sgpWLMhPicAEqk_eUFQgKsDHf_h&_nc_zt=23&_nc_ht=scontent.fcgy2-3.fna&_nc_gid=jG4Qwkmbjzym4_JXwYUoqg&oh=00_Afuf0xny8GOI8VZwvo3OsgR08wCH9GVSCuxTGL9Wfj4G_w&oe=69A34EA8'
       },
       {
         owner: {
@@ -254,11 +254,11 @@ const seed = async () => {
         opening_time: '10:00:00',
         closing_time: '22:00:00',
         is_active: true,
-        rating: 4.5,
+        rating: 4.9,
         total_reviews: 90,
         latitude: 10.2829,
         longitude: 123.8854,
-        image: '/assets/images/Mesa Restaurant Phillippines.png'
+        image: 'https://scontent.fcgy2-3.fna.fbcdn.net/v/t39.30808-6/616782352_1296618849178000_1669063287155888127_n.png?_nc_cat=111&ccb=1-7&_nc_sid=2a1932&_nc_eui2=AeERrTqtZt-UR99t9xnWcFA-m6sLLfgExpWbqwst-ATGlQ0-mar1K3t5hMOZKyRr51o-M5rsGgLKajUVjgIUOIY-&_nc_ohc=2_qGWFV8VlcQ7kNvwG4fcFJ&_nc_oc=AdnYOg1e6CzSrsSqs24t3MJxNg_ZjoUH7B03P9qT-pkLilG-a5IxW-BAXB-W1R6gXwyKuDVt37i_bC4cZjSPWLM1&_nc_zt=23&_nc_ht=scontent.fcgy2-3.fna&_nc_gid=JA1-vP4MrbBtCqYCpXI1IA&oh=00_Afvxfjv9aONRR6N4xkDe4-Q6Cf8sDgJ9bdMlTfCNzDpn8Q&oe=69A339B3'
       },
       {
         owner: {
@@ -278,11 +278,11 @@ const seed = async () => {
         opening_time: '10:00:00',
         closing_time: '21:00:00',
         is_active: true,
-        rating: 4.2,
+        rating: 4.8,
         total_reviews: 60,
         latitude: 10.2829,
         longitude: 123.8854,
-        image: '/assets/images/Boy Belly.png'
+        image: 'https://scontent.fceb1-3.fna.fbcdn.net/v/t39.30808-6/499178510_670252335901912_5015432747052094833_n.jpg?_nc_cat=102&ccb=1-7&_nc_sid=7b2446&_nc_eui2=AeH3z5bxo33F_pj_jCFSzelfEugl2qr4Oc0S6CXaqvg5zVxE8fYJ-yPA8MFO3aVWtiLm_xgEtuKK-OzP6SFyax8L&_nc_ohc=cFe9ktJ3waMQ7kNvwFFwAKo&_nc_oc=AdlAqOUFiGs6L6aAbg4I4i3A9PNjBc_pPoldIWYzEmosO85ip8on8uA1ZrVkag6pJB6Dibunch-vWLYSFLwbo1Jc&_nc_zt=23&_nc_ht=scontent.fceb1-3.fna&_nc_gid=2BqukcnRRSExTy3LVv7lTA&oh=00_AfuER70DUjNlssIDzaUd8GOGdbnshcJUMvpHUtgRuIDfZw&oe=69A4CEDB'
       }
     ];
 
