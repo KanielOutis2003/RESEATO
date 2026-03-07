@@ -91,6 +91,22 @@ class AuthService {
     localStorage.setItem('user', JSON.stringify(normalized))
     return normalized
   }
+
+  async forgotPassword(email: string) {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    })
+    if (error) throw new Error(error.message)
+    return true
+  }
+
+  async resetPassword(password: string) {
+    const { error } = await supabase.auth.updateUser({
+      password: password
+    })
+    if (error) throw new Error(error.message)
+    return true
+  }
 }
 
 export default new AuthService()

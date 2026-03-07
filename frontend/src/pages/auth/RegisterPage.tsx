@@ -24,6 +24,7 @@ export const RegisterPage: React.FC = () => {
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [termsModalOpen, setTermsModalOpen] = useState(false);
   const [errors, setErrors] = useState<any>({});
+  const [isRegistered, setIsRegistered] = useState(false);
 
   // Check if user is already logged in
   useEffect(() => {
@@ -82,19 +83,47 @@ export const RegisterPage: React.FC = () => {
       });
       
       toast.success('Registration successful!');
-      
-      // Redirect based on role
-      if (formData.role === UserRole.VENDOR) {
-        navigate('/vendor/dashboard');
-      } else {
-        navigate('/dashboard');
-      }
+      setIsRegistered(true);
     } catch (error: any) {
       toast.error(error.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
   };
+
+  if (isRegistered) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-50 flex items-center justify-center p-4 py-12">
+        <Toaster position="top-center" />
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="w-full max-w-md bg-white rounded-3xl shadow-2xl p-10 text-center"
+        >
+          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
+            <Mail className="w-10 h-10 text-green-600" />
+          </div>
+          <h3 className="text-2xl font-bold text-neutral-900 mb-4">Confirm your registration</h3>
+          <p className="text-neutral-600 mb-8">
+            We've sent a confirmation link to <span className="font-semibold text-neutral-900">{formData.email}</span>. 
+            Please check your email and click the link to activate your account.
+          </p>
+          <div className="space-y-4">
+            <Button
+              variant="primary"
+              fullWidth
+              onClick={() => navigate('/login')}
+            >
+              Back to Sign In
+            </Button>
+            <p className="text-sm text-neutral-500">
+              Didn't receive the email? Check your spam folder or try registering again.
+            </p>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-primary-50 via-white to-primary-50 flex items-center justify-center p-4 py-12 relative">

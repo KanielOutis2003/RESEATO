@@ -15,6 +15,7 @@ import { RestaurantDetailPage } from './pages/customer/RestaurantDetailPage';
 import { MyReservationsPage } from './pages/customer/MyReservationsPage';
 import { LoginPage } from './pages/auth/LoginPage';
 import { RegisterPage } from './pages/auth/RegisterPage';
+import { ResetPasswordPage } from './pages/auth/ResetPasswordPage';
 import { VendorDashboardPage } from './pages/vendor/DashboardPage';
 import { AdminDashboard } from './pages/admin/AdminDashboard';
 import { PaymentPage } from './pages/customer/PaymentPage';
@@ -49,6 +50,7 @@ export const AppRouter: React.FC = () => {
         {/* Public Routes */}
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
 
         {/* Customer Routes */}
         <Route path="/" element={<CustomerLayout />}>

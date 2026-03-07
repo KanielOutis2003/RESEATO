@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import { Mail, Lock, ArrowRight, ArrowLeft, UtensilsCrossed, Eye, EyeOff } from 'lucide-react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Mail, Lock, ArrowRight, ArrowLeft, UtensilsCrossed, Eye, EyeOff, X } from 'lucide-react';
 import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { TermsModal } from '../../components/common/TermsModal';
@@ -16,6 +16,9 @@ export const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [agreedToTerms, setAgreedToTerms] = useState(false);
   const [termsModalOpen, setTermsModalOpen] = useState(false);
+  const [isForgotModalOpen, setIsForgotModalOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
   const [errors, setErrors] = useState<{ email: string; password: string; terms?: string }>({ email: '', password: '' });
 
   // Check if user is already logged in
@@ -65,8 +68,23 @@ export const LoginPage: React.FC = () => {
     }
   };
 
-  const handleForgotPassword = () => {
-    toast.error('Forgot password functionality coming soon!');
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!forgotEmail) {
+      toast.error('Please enter your email address');
+      return;
+    }
+
+    try {
+      setForgotLoading(true);
+      await authService.forgotPassword(forgotEmail);
+      toast.success('Password reset link sent! Please check your email.');
+      setIsForgotModalOpen(false);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to send reset link');
+    } finally {
+      setForgotLoading(false);
+    }
   };
 
   return (
@@ -185,7 +203,7 @@ export const LoginPage: React.FC = () => {
                 </label>
                 <button
                   type="button"
-                  onClick={handleForgotPassword}
+                  onClick={() => setIsForgotModalOpen(true)}
                   className="text-sm text-primary-700 hover:text-primary-800 font-medium focus:outline-none"
                 >
                   Forgot password?
@@ -240,6 +258,71 @@ export const LoginPage: React.FC = () => {
           </div>
         </motion.div>
       </div>
+
+      {/* Forgot Password Modal */}
+      <AnimatePresence>
+        {isForgotModalOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={() => setIsForgotModalOpen(false)}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl"
+            >
+              <button
+                onClick={() => setIsForgotModalOpen(false)}
+                className="absolute top-4 right-4 p-2 text-neutral-400 hover:text-neutral-600 transition-colors"
+              >
+                <X className="w-6 h-6" />
+              </button>
+
+              <div className="text-center mb-8">
+                <div className="w-16 h-16 bg-primary-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                  <Lock className="w-8 h-8 text-primary-700" />
+                </div>
+                <h3 className="text-2xl font-bold text-neutral-900">Forgot Password?</h3>
+                <p className="text-neutral-600 mt-2">Enter your email and we'll send you a link to reset your password.</p>
+              </div>
+
+              <form onSubmit={handleForgotPassword} className="space-y-6">
+                <Input
+                  label="Email Address"
+                  type="email"
+                  placeholder="name@example.com"
+                  value={forgotEmail}
+                  onChange={(e) => setForgotEmail(e.target.value)}
+                  leftIcon={<Mail className="w-5 h-5" />}
+                  autoFocus
+                />
+
+                <Button
+                  type="submit"
+                  variant="primary"
+                  fullWidth
+                  isLoading={forgotLoading}
+                >
+                  Send Reset Link
+                </Button>
+
+                <button
+                  type="button"
+                  onClick={() => setIsForgotModalOpen(false)}
+                  className="w-full text-center text-sm font-semibold text-neutral-500 hover:text-neutral-700 transition-colors"
+                >
+                  Cancel
+                </button>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   );
 };
