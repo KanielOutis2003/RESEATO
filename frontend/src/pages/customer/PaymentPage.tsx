@@ -69,14 +69,13 @@ export const PaymentPage: React.FC = () => {
 
     try {
       setLoading(true);
-      // Simulate fake payment delay
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      // Removed fake delay for instant experience
       
-      // Update reservation status to 'pending' (but could be 'paid' if column existed)
-      // The vendor will then confirm it from their dashboard
+      // Update reservation status to 'pending' instantly
+      // This is now the "confirmation" step without real payment
       await reservationService.updateReservationStatus(reservationId, 'pending');
       
-      toast.success('Payment successful! Your reservation is awaiting restaurant confirmation.');
+      toast.success('Reservation successful! Awaiting restaurant confirmation.');
       navigate('/my-reservations');
     } catch (error: any) {
       toast.error(error.message || 'Payment failed');

@@ -63,7 +63,11 @@ class AdminService {
     try {
       let query = supabase
         .from('reservations')
-        .select('*, users!customer_id(first_name, last_name), restaurants!restaurant_id(name)');
+        .select(`
+          *,
+          users!customer_id(first_name, last_name),
+          restaurants!restaurant_id(name)
+        `);
 
       if (status) query = query.eq('status', status);
       
@@ -91,7 +95,7 @@ class AdminService {
     try {
       const { data, error } = await supabase
         .from('restaurants')
-        .select('*, users!owner_id(first_name, last_name), reservations(id, status)');
+        .select('*, reservations(id, status)');
       
       if (error) throw error;
 
@@ -100,7 +104,7 @@ class AdminService {
         return {
           id: r.id,
           name: r.name,
-          owner: r.users ? `${r.users.first_name} ${r.users.last_name}` : 'No Owner',
+          owner: 'Platform Manager',
           isActive: r.is_active,
           completedReservations: completed,
           commissionDue: completed * 70
@@ -123,10 +127,10 @@ class AdminService {
       return (data || []).map(u => ({
         id: u.id,
         email: u.email,
-        name: `${u.first_name} ${u.last_name}`,
-        role: u.role,
-        isActive: true,
-        joinedAt: u.created_at,
+        name: `${u.first_name || ''} ${u.last_name || ''}`.trim() || 'Anonymous',
+        role: u.role || 'customer',
+        isActive: u.is_active ?? true,
+        joinedAt: u.created_at || new Date().toISOString(),
         reservationCount: u.reservations?.length || 0
       }));
     } catch (error: any) {

@@ -1,5 +1,6 @@
 // frontend/src/services/reservationService.ts
 import { supabase } from '../config/supabase'
+import { CreateReservationDTO, Reservation, TimeSlot } from '../../../shared/types'
 
 class ReservationService {
   async createReservation(data: CreateReservationDTO): Promise<Reservation> {
@@ -56,7 +57,7 @@ class ReservationService {
 
     const { data, error } = await supabase
       .from('reservations')
-      .select('*, restaurants(*), tables(*)')
+      .select('*, restaurants:restaurant_id(*), tables:table_id(*)')
       .eq('customer_id', user.id)
       .order('reservation_date', { ascending: false })
 
@@ -86,7 +87,7 @@ class ReservationService {
     }))
   }
 
-  async getAvailableTimeSlots(restaurantId: string, date: string, guestCount: number) {
+  async getAvailableTimeSlots(restaurantId: string, date: string, guestCount: number): Promise<TimeSlot[]> {
     // 1. Get restaurant hours
     const { data: restaurant } = await supabase
       .from('restaurants')
@@ -112,10 +113,10 @@ class ReservationService {
       .select('reservation_time, table_id')
       .eq('restaurant_id', restaurantId)
       .eq('reservation_date', date)
-      .in('status', ['confirmed', 'pending']);
+      .in('status', ['confirmed', 'pending', 'completed']);
 
     // Generate time slots
-    const slots = []
+    const slots: TimeSlot[] = []
     const opening = parseInt(restaurant.opening_time.split(':')[0])
     const closing = parseInt(restaurant.closing_time.split(':')[0])
 
@@ -156,11 +157,12 @@ class ReservationService {
   async getReservationById(id: string) {
     const { data, error } = await supabase
       .from('reservations')
-      .select('*, restaurants(*), tables(*)')
+      .select('*, restaurants:restaurant_id(*), tables:table_id(*)')
       .eq('id', id)
-      .single()
+      .maybeSingle()
 
     if (error) throw new Error(error.message)
+    if (!data) return null;
     
     const r = data;
     return {
