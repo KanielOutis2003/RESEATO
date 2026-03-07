@@ -29,24 +29,33 @@ class RestaurantService {
     console.log('Supabase raw data:', rows);
 
     const mapped = rows.map((r: any) => {
-      const images = (r.restaurant_images || r.images || []).map((img: any) => ({
+      let images = (r.restaurant_images || r.images || []).map((img: any) => ({
         id: img.id,
         imageUrl: img.imageUrl || img.url || img.image_url,
         isPrimary: img.isPrimary ?? img.is_primary ?? false,
       }))
       
-      // If Supabase has images, use them. Otherwise, try to find a fallback match by name
-      let finalImages = images;
-      if (finalImages.length === 0) {
-        const fallback = this.getFallbackData().find(f => f.name.toLowerCase() === r.name.toLowerCase());
+      // Filter out problematic/expiring URLs from Supabase (like scontent)
+      images = images.filter((img: any) => {
+        const url = img.imageUrl || '';
+        return !url.includes('scontent') && !url.includes('fbcdn');
+      });
+
+      // If Supabase has no valid images, try to find a fallback match by name
+      if (images.length === 0) {
+        const rName = r.name.toLowerCase().trim();
+        const fallback = this.getFallbackData().find(f => {
+          const fName = f.name.toLowerCase().trim();
+          return fName === rName || rName.includes(fName) || fName.includes(rName);
+        });
         if (fallback) {
-          finalImages = fallback.images;
+          images = fallback.images;
         }
       }
 
       return {
         ...r,
-        images: finalImages,
+        images,
         cuisineType: r.cuisine_type ?? r.cuisineType,
         openingTime: r.opening_time ?? r.openingTime,
         closingTime: r.closing_time ?? r.closingTime,
@@ -358,11 +367,30 @@ class RestaurantService {
       }
 
       const r: any = data;
-      const images = (r.restaurant_images || r.images || []).map((img: any) => ({
+      let images = (r.restaurant_images || r.images || []).map((img: any) => ({
         id: img.id,
         imageUrl: img.imageUrl || img.url || img.image_url,
         isPrimary: img.isPrimary ?? img.is_primary ?? false,
       }))
+
+      // Filter out problematic/expiring URLs from Supabase (like scontent)
+      images = images.filter((img: any) => {
+        const url = img.imageUrl || '';
+        return !url.includes('scontent') && !url.includes('fbcdn');
+      });
+
+      // If Supabase has no valid images, try to find a fallback match by name
+      if (images.length === 0) {
+        const rName = r.name.toLowerCase().trim();
+        const fallback = this.getFallbackData().find(f => {
+          const fName = f.name.toLowerCase().trim();
+          return fName === rName || rName.includes(fName) || fName.includes(rName);
+        });
+        if (fallback) {
+          images = fallback.images;
+        }
+      }
+
       return {
         ...r,
         images,
