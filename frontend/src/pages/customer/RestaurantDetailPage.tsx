@@ -101,6 +101,11 @@ export const RestaurantDetailPage: React.FC = () => {
     || restaurant.images?.[0]?.imageUrl 
     || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=80';
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.target as HTMLImageElement;
+    target.src = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1200&q=80';
+  };
+
   return (
     <div className="min-h-screen bg-neutral-50 pb-12">
       <Toaster position="top-center" />
@@ -113,6 +118,7 @@ export const RestaurantDetailPage: React.FC = () => {
           transition={{ duration: 0.8 }}
           src={primaryImage}
           alt={restaurant.name}
+          onError={handleImageError}
           className="w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
@@ -216,7 +222,7 @@ export const RestaurantDetailPage: React.FC = () => {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {restaurant.images?.slice(1, 4).map((img, i) => (
                 <div key={i} className="aspect-square rounded-3xl overflow-hidden shadow-md">
-                  <img src={img.imageUrl} alt="Interior" className="w-full h-full object-cover hover:scale-110 transition-transform duration-700" />
+                  <img src={img.imageUrl} alt="Interior" onError={handleImageError} className="w-full h-full object-cover hover:scale-110 transition-transform duration-700" />
                 </div>
               ))}
             </div>

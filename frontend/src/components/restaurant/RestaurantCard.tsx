@@ -16,6 +16,11 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) =>
     restaurant.images?.[0]?.imageUrl ||
     'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80';
 
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.target as HTMLImageElement;
+    target.src = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80';
+  };
+
   const reviewCount = restaurant.totalReviews ?? restaurant.reviewCount ?? 0;
 
   return (
@@ -30,6 +35,7 @@ export const RestaurantCard: React.FC<RestaurantCardProps> = ({ restaurant }) =>
         <img
           src={primaryImage}
           alt={restaurant.name}
+          onError={handleImageError}
           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent" />

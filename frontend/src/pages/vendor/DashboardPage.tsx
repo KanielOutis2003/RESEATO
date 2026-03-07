@@ -747,13 +747,25 @@ const StatCard: React.FC<{ icon: any, label: string, value: string | number, col
   </motion.div>
 );
 
-const TrendingCard: React.FC<{ title: string, price: string, image: string }> = ({ title, price, image }) => (
-  <div className="group relative rounded-3xl overflow-hidden aspect-[16/9] border border-white/10">
-    <img src={image} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" alt="" />
-    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-    <div className="absolute bottom-0 left-0 right-0 p-6">
-      <h4 className="text-lg font-bold mb-1 text-white">{title}</h4>
-      <p className="text-sm text-white/60">Price : {price}</p>
+const TrendingCard: React.FC<{ title: string, price: string, image: string }> = ({ title, price, image }) => {
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.target as HTMLImageElement;
+    target.src = 'https://images.unsplash.com/photo-1546069901-ba9599a7e63c?w=800&q=80';
+  };
+
+  return (
+    <div className="group relative rounded-3xl overflow-hidden aspect-[16/9] border border-white/10">
+      <img 
+        src={image} 
+        onError={handleImageError}
+        className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-700" 
+        alt={title} 
+      />
+      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+      <div className="absolute bottom-0 left-0 right-0 p-6">
+        <h4 className="text-lg font-bold mb-1 text-white">{title}</h4>
+        <p className="text-sm text-white/60">Price : {price}</p>
+      </div>
     </div>
-  </div>
-);
+  );
+};

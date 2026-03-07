@@ -17,10 +17,10 @@ const cuisineTypes = [
 ];
 
 const heroImages = [
-  'https://kyte.smsupermalls.com/image/view?path=mall%2Fimage%2FeQckeWBjGFhzRWRqX22TLJXswPeXlR4RsZPJOiFb.jpg',
-  'https://cdn.forevervacation.com/uploads/attraction/sm-city-cebu-2209.jpg?tr=w-1235,h-354',
-  'https://www.malls.com/wp-content/uploads/2024/10/47a45cdcea294333d85a9dfe2e7472bc.jpg.webp',
-  'https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEjd_ZFlYCdEtFE1y6vbJQJCrZsd0v-A1ll7w3ahxwh0VmyFZ808n5i3X5dNyZ5GDFwoDi8QsOw1j07IHb1aYGNhIQCjqHcBBkqFWP6g2EtaC65ypPm67uMDFQ-jM-3-b4K9mi4K-vvEAh2n/s1600/SM+Seaside+City+Cebu+NOW+OPEN+Cebu+Blogger+Cebu+Based+Blogger+Cebu+Blogging+Community.jpg'
+  'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=1600&q=80',
+  'https://images.unsplash.com/photo-1552566626-52f8b828add9?w=1600&q=80',
+  'https://images.unsplash.com/photo-1555396273-367ea4eb4db5?w=1600&q=80',
+  'https://images.unsplash.com/photo-1550966841-3ee5ad011063?w=1600&q=80'
 ];
 
 export const CustomerDashboardPage: React.FC = () => {
@@ -36,6 +36,11 @@ export const CustomerDashboardPage: React.FC = () => {
   const [selectedCuisine, setSelectedCuisine] = useState('All');
   const [selectedRestaurant, setSelectedRestaurant] = useState<Restaurant | null>(null);
   const [currentHeroIndex, setCurrentHeroIndex] = useState(0);
+
+  const handleImageError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    const target = e.target as HTMLImageElement;
+    target.src = 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80';
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -132,14 +137,15 @@ export const CustomerDashboardPage: React.FC = () => {
               <div className="absolute inset-0 w-full h-full">
                 <AnimatePresence mode="wait">
                   <motion.img
-                    key={currentHeroIndex}
-                    src={heroImages[currentHeroIndex]}
-                    initial={{ opacity: 0, scale: 1.1 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 1.5, ease: "easeInOut" }}
-                    className="absolute inset-0 w-full h-full object-cover"
-                  />
+                      key={currentHeroIndex}
+                      src={heroImages[currentHeroIndex]}
+                      onError={handleImageError}
+                      initial={{ opacity: 0, scale: 1.1 }}
+                      animate={{ opacity: 1, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      transition={{ duration: 1.5, ease: "easeInOut" }}
+                      className="absolute inset-0 w-full h-full object-cover"
+                    />
                 </AnimatePresence>
               </div>
               <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/40 to-transparent" />
@@ -172,7 +178,7 @@ export const CustomerDashboardPage: React.FC = () => {
                     className={`flex flex-col items-center group transition-all ${selectedCuisine === cuisine.name ? 'scale-105' : ''}`}
                   >
                     <div className={`w-20 h-20 rounded-2xl overflow-hidden mb-2 border-2 transition-all shadow-sm ${selectedCuisine === cuisine.name ? 'border-primary-500 ring-2 ring-primary-100' : 'border-white'}`}>
-                      <img src={cuisine.image} alt={cuisine.name} className="w-full h-full object-cover" />
+                      <img src={cuisine.image} alt={cuisine.name} onError={handleImageError} className="w-full h-full object-cover" />
                     </div>
                     <span className={`text-xs font-semibold uppercase tracking-wider ${selectedCuisine === cuisine.name ? 'text-primary-700' : 'text-neutral-500'}`}>{cuisine.name}</span>
                   </button>
@@ -218,6 +224,7 @@ export const CustomerDashboardPage: React.FC = () => {
                         <img 
                           src={restaurant.images?.[0]?.imageUrl || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80'} 
                           alt={restaurant.name}
+                          onError={handleImageError}
                           className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                       </div>
@@ -258,6 +265,7 @@ export const CustomerDashboardPage: React.FC = () => {
                       <img 
                         src={selectedRestaurant.images?.[0]?.imageUrl || 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?w=800&q=80'} 
                         alt={selectedRestaurant.name}
+                        onError={handleImageError}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                       />
                     </div>
