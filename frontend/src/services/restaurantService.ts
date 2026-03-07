@@ -24,15 +24,29 @@ class RestaurantService {
 
     if (error) throw new Error(error.message)
     const rows = data || []
+    
+    // Debug: check what we are getting from Supabase
+    console.log('Supabase raw data:', rows);
+
     const mapped = rows.map((r: any) => {
       const images = (r.restaurant_images || r.images || []).map((img: any) => ({
         id: img.id,
         imageUrl: img.imageUrl || img.url || img.image_url,
         isPrimary: img.isPrimary ?? img.is_primary ?? false,
       }))
+      
+      // If Supabase has images, use them. Otherwise, try to find a fallback match by name
+      let finalImages = images;
+      if (finalImages.length === 0) {
+        const fallback = this.getFallbackData().find(f => f.name.toLowerCase() === r.name.toLowerCase());
+        if (fallback) {
+          finalImages = fallback.images;
+        }
+      }
+
       return {
         ...r,
-        images,
+        images: finalImages,
         cuisineType: r.cuisine_type ?? r.cuisineType,
         openingTime: r.opening_time ?? r.openingTime,
         closingTime: r.closing_time ?? r.closingTime,
@@ -41,8 +55,8 @@ class RestaurantService {
         description: r.description || 'Welcome to our restaurant! We serve the finest dishes in town with a focus on quality and taste.',
       }
     })
-    if (mapped.length > 0) return mapped
-    return this.getFallbackData()
+    
+    return mapped;
   }
 
   getFallbackData() {
