@@ -21,9 +21,9 @@ class AuthService {
     // In many Supabase setups, signup also signs you in immediately 
     // depending on confirmation settings.
     if (authData.session) {
-      localStorage.setItem('token', authData.session.access_token)
+      sessionStorage.setItem('token', authData.session.access_token)
       const normalized = this.normalizeUser(authData.user)
-      localStorage.setItem('user', JSON.stringify(normalized))
+      sessionStorage.setItem('user', JSON.stringify(normalized))
     }
     
     return { user: authData.user, token: authData.session?.access_token }
@@ -36,26 +36,26 @@ class AuthService {
     })
 
     if (error) throw new Error(error.message)
-    localStorage.setItem('token', data.session?.access_token || '')
+    sessionStorage.setItem('token', data.session?.access_token || '')
 
     const normalized = this.normalizeUser(data.user)
-    localStorage.setItem('user', JSON.stringify(normalized))
+    sessionStorage.setItem('user', JSON.stringify(normalized))
     
     return { user: data.user, token: data.session?.access_token }
   }
 
   async logout() {
     await supabase.auth.signOut()
-    localStorage.removeItem('token')
-    localStorage.removeItem('user')
+    sessionStorage.removeItem('token')
+    sessionStorage.removeItem('user')
   }
 
   isAuthenticated() {
-    return !!localStorage.getItem('token')
+    return !!sessionStorage.getItem('token')
   }
 
   getStoredUser() {
-    const userStr = localStorage.getItem('user')
+    const userStr = sessionStorage.getItem('user')
     if (!userStr) return null
     try {
       const raw = JSON.parse(userStr)
@@ -101,7 +101,7 @@ class AuthService {
     })
     if (error) throw new Error(error.message)
     const normalized = this.normalizeUser(res.user)
-    localStorage.setItem('user', JSON.stringify(normalized))
+    sessionStorage.setItem('user', JSON.stringify(normalized))
     return normalized
   }
 

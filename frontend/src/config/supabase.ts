@@ -10,4 +10,10 @@ if (!supabaseUrl || !supabaseAnonKey) {
 
 console.log('Supabase URL:', supabaseUrl) // Debug line - check console
 
-export const supabase = createClient(supabaseUrl, supabaseAnonKey)
+export const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+  auth: {
+    storage: window.sessionStorage,
+    autoRefreshToken: true,
+    persistSession: true
+  }
+})
