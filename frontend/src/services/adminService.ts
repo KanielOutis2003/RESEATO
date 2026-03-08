@@ -66,7 +66,7 @@ class AdminService {
         .select(`
           *,
           users!customer_id(first_name, last_name),
-          restaurants!restaurant_id(name)
+          restaurants(name)
         `);
 
       if (status) query = query.eq('status', status);

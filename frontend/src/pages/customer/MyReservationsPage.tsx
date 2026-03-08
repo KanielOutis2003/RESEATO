@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Filter, ArrowLeft } from 'lucide-react';
+import { Calendar, Filter, ArrowLeft, Star, X } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
-import { Reservation, ReservationStatus } from '../../../../shared/types';
+import { Reservation, ReservationStatus } from '../../types';
 import reservationService from '../../services/reservationService';
 import { ReservationCard } from '../../components/reservation/ReservationCard';
+import { Button } from '../../components/common/Button';
 import toast, { Toaster } from 'react-hot-toast';
 
 export const MyReservationsPage: React.FC = () => {
   const [reservations, setReservations] = useState<Reservation[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'all' | ReservationStatus>('all');
+  const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+  const [selectedReservation, setSelectedReservation] = useState<Reservation | null>(null);
+  const [rating, setRating] = useState(5);
+  const [comment, setComment] = useState('');
+  const [submittingFeedback, setSubmittingFeedback] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -43,16 +49,39 @@ export const MyReservationsPage: React.FC = () => {
     }
   };
 
+  const handleFeedbackClick = (reservation: Reservation) => {
+    setSelectedReservation(reservation);
+    setShowFeedbackModal(true);
+    setRating(5);
+    setComment('');
+  };
+
+  const handleSubmitFeedback = async () => {
+    if (!selectedReservation) return;
+
+    try {
+      setSubmittingFeedback(true);
+      await reservationService.submitFeedback(selectedReservation.id, rating, comment);
+      toast.success('Thank you for your feedback!');
+      setShowFeedbackModal(false);
+      loadReservations();
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to submit feedback');
+    } finally {
+      setSubmittingFeedback(false);
+    }
+  };
+
   const filteredReservations = filter === 'all'
     ? reservations
     : reservations.filter(r => r.status === filter);
 
-  const upcomingReservations = reservations.filter(
-    r => r.status === ReservationStatus.CONFIRMED || r.status === ReservationStatus.PENDING
+  const upcomingReservations = filteredReservations.filter(
+    r => r.status === ReservationStatus.CONFIRMED || r.status === ReservationStatus.PENDING || r.status === ReservationStatus.AWAITING_PAYMENT
   );
 
-  const pastReservations = reservations.filter(
-    r => r.status === ReservationStatus.COMPLETED || r.status === ReservationStatus.CANCELLED
+  const pastReservations = filteredReservations.filter(
+    r => r.status === ReservationStatus.COMPLETED || r.status === ReservationStatus.CANCELLED || r.status === ReservationStatus.REJECTED
   );
 
   const container = {
@@ -118,7 +147,7 @@ export const MyReservationsPage: React.FC = () => {
           </div>
 
           <div className="flex flex-wrap gap-2">
-            {['all', 'pending', 'confirmed', 'completed', 'cancelled'].map((status) => (
+            {['all', 'awaiting_payment', 'pending', 'confirmed', 'completed', 'cancelled', 'rejected'].map((status) => (
               <button
                 key={status}
                 onClick={() => setFilter(status as any)}
@@ -130,7 +159,7 @@ export const MyReservationsPage: React.FC = () => {
                   }
                 `}
               >
-                {status.charAt(0).toUpperCase() + status.slice(1)}
+                {status === 'awaiting_payment' ? 'Awaiting Payment' : status.charAt(0).toUpperCase() + status.slice(1)}
               </button>
             ))}
           </div>
@@ -191,6 +220,7 @@ export const MyReservationsPage: React.FC = () => {
                       <ReservationCard
                         reservation={reservation}
                         onCancel={handleCancel}
+                        onFeedback={handleFeedbackClick}
                       />
                     </motion.div>
                   ))}
@@ -212,7 +242,10 @@ export const MyReservationsPage: React.FC = () => {
                 >
                   {pastReservations.map((reservation) => (
                     <motion.div key={reservation.id} variants={item}>
-                      <ReservationCard reservation={reservation} />
+                      <ReservationCard 
+                        reservation={reservation} 
+                        onFeedback={handleFeedbackClick}
+                      />
                     </motion.div>
                   ))}
                 </motion.div>
@@ -232,6 +265,7 @@ export const MyReservationsPage: React.FC = () => {
                     <ReservationCard
                       reservation={reservation}
                       onCancel={handleCancel}
+                      onFeedback={handleFeedbackClick}
                     />
                   </motion.div>
                 ))}
@@ -240,6 +274,71 @@ export const MyReservationsPage: React.FC = () => {
           </>
         )}
       </div>
+
+      {/* Feedback Modal */}
+      {showFeedbackModal && selectedReservation && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+          <motion.div 
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl"
+          >
+            <div className="flex justify-between items-center mb-6">
+              <h3 className="text-2xl font-bold text-neutral-900">Restaurant Feedback</h3>
+              <button onClick={() => setShowFeedbackModal(false)} className="text-neutral-400 hover:text-neutral-600 transition-colors">
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="mb-6">
+              <p className="text-neutral-600 mb-4">How was your experience at <span className="font-bold text-neutral-900">{selectedReservation.restaurantName}</span>?</p>
+              
+              <div className="flex justify-center gap-2 mb-6">
+                {[1, 2, 3, 4, 5].map((star) => (
+                  <button
+                    key={star}
+                    onClick={() => setRating(star)}
+                    className="p-1 transition-transform active:scale-90"
+                  >
+                    <Star 
+                      size={36} 
+                      className={`${rating >= star ? 'text-yellow-400 fill-yellow-400' : 'text-neutral-200'} transition-colors`} 
+                    />
+                  </button>
+                ))}
+              </div>
+
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-neutral-700">Tell us more (optional)</label>
+                <textarea
+                  value={comment}
+                  onChange={(e) => setComment(e.target.value)}
+                  placeholder="Share your experience..."
+                  className="w-full p-4 bg-neutral-50 border-none rounded-2xl text-neutral-900 focus:ring-2 focus:ring-primary-500 transition-all h-32 resize-none"
+                />
+              </div>
+            </div>
+
+            <div className="flex gap-4">
+              <Button
+                variant="outline"
+                fullWidth
+                onClick={() => setShowFeedbackModal(false)}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant="primary"
+                fullWidth
+                onClick={handleSubmitFeedback}
+                isLoading={submittingFeedback}
+              >
+                Submit Feedback
+              </Button>
+            </div>
+          </motion.div>
+        </div>
+      )}
     </div>
   );
 };

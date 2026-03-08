@@ -1,4 +1,15 @@
 import { supabase } from '../config/supabase';
+import toast from 'react-hot-toast';
+
+supabase
+  .channel('schema-db-changes')
+  .on('postgres_changes', 
+    { event: 'INSERT', schema: 'public', table: 'notifications' }, 
+    (payload) => {
+      toast.success(payload.new.title + ": " + payload.new.message);
+    }
+  )
+  .subscribe();
 
 export interface Notification {
   id: string;
@@ -6,6 +17,7 @@ export interface Notification {
   title: string;
   message: string;
   isRead: boolean;
+  reservation_id?: string;
   createdAt: string;
 }
 
@@ -29,6 +41,7 @@ class NotificationService {
         title: n.title,
         message: n.message,
         isRead: n.is_read,
+        reservation_id: n.reservation_id,
         createdAt: n.created_at
       }));
     } catch (error) {

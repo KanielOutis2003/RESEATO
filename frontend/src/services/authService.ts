@@ -1,5 +1,5 @@
 import { supabase } from '../config/supabase'
-import { UserRole } from '../../../shared/types'
+import { User, UserRole } from '../types'
 
 class AuthService {
   async register(data: any) {

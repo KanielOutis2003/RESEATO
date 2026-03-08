@@ -1,6 +1,6 @@
 import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import { UserRole } from '../../shared/types';
+import { UserRole } from './types';
 import authService from './services/authService';
 
 // Layouts

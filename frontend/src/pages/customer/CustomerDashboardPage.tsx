@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Search, MapPin, UtensilsCrossed, Sparkles, Star, Clock, Info } from 'lucide-react';
-import { Restaurant } from '../../../../shared/types';
+import { Restaurant } from '../../types';
 import restaurantService from '../../services/restaurantService';
 import authService from '../../services/authService';
 import { Button } from '../../components/common/Button';

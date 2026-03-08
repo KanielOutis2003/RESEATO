@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { UserRole } from '../../../../shared/types';
-import type { User } from '../../../../shared/types';
+import { UserRole } from '../../types';
+import type { User } from '../../types';
 import authService from '../../services/authService';
 import notificationService, { Notification } from '../../services/notificationService';
 import { Button } from './Button';
@@ -113,6 +113,24 @@ export const Navbar: React.FC<NavbarProps> = ({ user }) => {
 
   const links = getLinks();
 
+  const handleNotificationClick = (notification: Notification) => {
+    handleMarkAsRead(notification.id);
+    
+    // Check if it's a payment related notification or any other with reservation_id
+    if (notification.reservation_id) {
+      if (notification.title === 'Action Required' || notification.title === 'Payment Required') {
+        navigate(`/payment/${notification.reservation_id}`);
+      } else {
+        // Just navigate to the reservations page, maybe scroll to it?
+        navigate('/my-reservations');
+      }
+    } else {
+      navigate('/my-reservations');
+    }
+    
+    setIsNotificationsOpen(false);
+  };
+
   return (
     <>
     <nav className="sticky top-0 z-50 bg-white/80 backdrop-blur-xl border-b border-neutral-100 shadow-sm">
@@ -218,7 +236,7 @@ export const Navbar: React.FC<NavbarProps> = ({ user }) => {
                                 className={`p-4 border-b border-neutral-50 hover:bg-neutral-50/80 transition-colors cursor-pointer ${
                                   !notification.isRead ? 'bg-primary-50/30' : ''
                                 }`}
-                                onClick={() => !notification.isRead && handleMarkAsRead(notification.id)}
+                                onClick={() => handleNotificationClick(notification)}
                               >
                                 <div className="flex justify-between items-start mb-1">
                                   <h4 className={`text-sm font-semibold ${!notification.isRead ? 'text-primary-900' : 'text-neutral-900'}`}>

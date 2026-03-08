@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { Clock, CheckCircle } from 'lucide-react';
-import { TimeSlot } from '../../../../shared/types';
+import { TimeSlot } from '../../types';
 import reservationService from '../../services/reservationService';
 
 interface TimeSlotPickerProps {
@@ -70,14 +70,16 @@ export const TimeSlotPicker: React.FC<TimeSlotPickerProps> = ({
   }
 
   const formatTime = (time: string) => {
-    const [hours, minutes] = time.split(':');
-    const date = new Date();
-    date.setHours(parseInt(hours), parseInt(minutes));
-    return date.toLocaleTimeString('en-US', {
-      hour: 'numeric',
-      minute: '2-digit',
-      hour12: true
-    });
+    try {
+      const [hours, minutes] = time.split(':');
+      const h = parseInt(hours);
+      const m = minutes || '00';
+      const ampm = h >= 12 ? 'PM' : 'AM';
+      const h12 = h % 12 || 12;
+      return `${h12}:${m} ${ampm}`;
+    } catch (e) {
+      return time;
+    }
   };
 
   const getTimeOfDay = (time: string) => {

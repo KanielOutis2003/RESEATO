@@ -6,7 +6,7 @@ import { Input } from '../../components/common/Input';
 import { Button } from '../../components/common/Button';
 import { TermsModal } from '../../components/common/TermsModal';
 import authService from '../../services/authService';
-import { UserRole } from '../../../../shared/types';
+import { UserRole } from '../../types';
 import toast, { Toaster } from 'react-hot-toast';
 
 export const RegisterPage: React.FC = () => {

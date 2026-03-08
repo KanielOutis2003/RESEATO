@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { UtensilsCrossed } from 'lucide-react';
 import authService from '../../services/authService';
-import { UserRole } from '../../../../shared/types';
+import { UserRole } from '../../types';
 import { Button } from '../../components/common/Button';
 import { TermsModal } from '../../components/common/TermsModal';
 

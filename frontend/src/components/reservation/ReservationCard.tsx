@@ -1,13 +1,15 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, Clock, Users, MapPin, FileText, X } from 'lucide-react';
-import { Reservation, ReservationStatus } from '../../../../shared/types';
+import { useNavigate } from 'react-router-dom';
+import { Calendar, Clock, Users, MapPin, FileText, X, Star, MessageSquare } from 'lucide-react';
+import { Reservation, ReservationStatus } from '../../types';
 import { Button } from '../common/Button';
 import { format } from 'date-fns';
 
 interface ReservationCardProps {
   reservation: Reservation;
   onCancel?: (id: string) => void;
+  onFeedback?: (reservation: Reservation) => void;
   showRestaurant?: boolean;
   showCustomer?: boolean;
 }
@@ -15,6 +17,7 @@ interface ReservationCardProps {
 export const ReservationCard: React.FC<ReservationCardProps> = ({
   reservation,
   onCancel,
+  onFeedback,
   showRestaurant = true,
   showCustomer = false,
 }) => {
@@ -35,7 +38,18 @@ export const ReservationCard: React.FC<ReservationCardProps> = ({
   };
 
   const canCancel = reservation.status === ReservationStatus.PENDING || 
-                    reservation.status === ReservationStatus.CONFIRMED;
+                    reservation.status === ReservationStatus.CONFIRMED ||
+                    reservation.status === ReservationStatus.AWAITING_PAYMENT;
+
+  const canRebook = reservation.status === ReservationStatus.CANCELLED || 
+                    reservation.status === ReservationStatus.REJECTED;
+
+  const isAwaitingPayment = reservation.status === ReservationStatus.AWAITING_PAYMENT;
+  const navigate = useNavigate();
+
+  const handleRebook = () => {
+    navigate(`/restaurant/${reservation.restaurantId}`);
+  };
 
   return (
     <motion.div
@@ -61,7 +75,14 @@ export const ReservationCard: React.FC<ReservationCardProps> = ({
               Booking ID: {reservation.id.slice(0, 8)}
             </p>
           </div>
-          {getStatusBadge(reservation.status)}
+          <div className="flex flex-col items-end gap-2">
+            {getStatusBadge(reservation.status)}
+            {isAwaitingPayment && (
+              <span className="text-[10px] font-black text-primary-600 uppercase tracking-tighter animate-pulse">
+                Action Required
+              </span>
+            )}
+          </div>
         </div>
 
         {/* Details Grid */}
@@ -153,19 +174,55 @@ export const ReservationCard: React.FC<ReservationCardProps> = ({
         )}
 
         {/* Actions */}
-        {canCancel && onCancel && (
-          <div className="pt-4 border-t border-neutral-200">
-            <Button
-              variant="outline"
-              size="sm"
-              fullWidth
-              onClick={() => onCancel(reservation.id)}
-              leftIcon={<X className="w-4 h-4" />}
-            >
-              Cancel Reservation
-            </Button>
+        {(canCancel && onCancel) || (reservation.status === ReservationStatus.COMPLETED && onFeedback) || isAwaitingPayment || canRebook ? (
+          <div className="pt-4 border-t border-neutral-200 flex flex-col gap-2">
+            {isAwaitingPayment && (
+              <Button
+                variant="primary"
+                size="sm"
+                fullWidth
+                onClick={() => navigate(`/payment/${reservation.id}`)}
+                className="bg-primary-600 hover:bg-primary-700 text-white font-black uppercase tracking-widest py-3"
+              >
+                Complete Payment
+              </Button>
+            )}
+            {canRebook && (
+              <Button
+                variant="primary"
+                size="sm"
+                fullWidth
+                onClick={handleRebook}
+                leftIcon={<Calendar className="w-4 h-4" />}
+                className="bg-primary-600 hover:bg-primary-700 text-white"
+              >
+                Rebook Now
+              </Button>
+            )}
+            {canCancel && onCancel && (
+              <Button
+                variant="outline"
+                size="sm"
+                fullWidth
+                onClick={() => onCancel(reservation.id)}
+                leftIcon={<X className="w-4 h-4" />}
+              >
+                {isAwaitingPayment ? 'Cancel Booking' : 'Cancel Reservation'}
+              </Button>
+            )}
+            {reservation.status === ReservationStatus.COMPLETED && onFeedback && (
+              <Button
+                variant="primary"
+                size="sm"
+                fullWidth
+                onClick={() => onFeedback(reservation)}
+                leftIcon={<Star className="w-4 h-4" />}
+              >
+                Give Feedback
+              </Button>
+            )}
           </div>
-        )}
+        ) : null}
 
         {/* Payment Info */}
         <div className="mt-4 pt-4 border-t border-neutral-200">

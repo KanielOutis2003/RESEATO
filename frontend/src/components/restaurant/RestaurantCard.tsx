@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { Restaurant } from '../../../../shared/types';
+import { Restaurant } from '../../types';
 import { MapPin, Clock, Star, ArrowRight } from 'lucide-react';
 
 interface RestaurantCardProps {

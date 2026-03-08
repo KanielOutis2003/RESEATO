@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MapPin, Clock, Star, Phone, Mail, Calendar, ArrowLeft } from 'lucide-react';
-import { Restaurant } from '../../../../shared/types';
+import { Restaurant, Table } from '../../types';
 import restaurantService from '../../services/restaurantService';
 import reservationService from '../../services/reservationService';
 import authService from '../../services/authService';
@@ -111,7 +111,7 @@ export const RestaurantDetailPage: React.FC = () => {
       <Toaster position="top-center" />
 
       {/* Hero Header with Glassmorphism */}
-      <div className="relative h-[450px] w-full overflow-hidden">
+      <div className="relative h-[300px] md:h-[450px] w-full overflow-hidden">
         <motion.img
           initial={{ scale: 1.1 }}
           animate={{ scale: 1 }}
@@ -124,43 +124,43 @@ export const RestaurantDetailPage: React.FC = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent"></div>
         
         {/* Navigation Overlays */}
-        <div className="absolute top-8 left-8 flex items-center space-x-4">
+        <div className="absolute top-4 left-4 md:top-8 md:left-8 flex items-center space-x-4">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center space-x-2 bg-white/10 backdrop-blur-md border border-white/20 px-4 py-2 rounded-xl text-white hover:bg-white/20 transition-all group"
+            className="flex items-center space-x-2 bg-white/10 backdrop-blur-md border border-white/20 px-3 py-1.5 md:px-4 md:py-2 rounded-xl text-white hover:bg-white/20 transition-all group"
           >
-            <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
-            <span className="font-medium">Back to Discovery</span>
+            <ArrowLeft className="w-4 h-4 md:w-5 md:h-5 group-hover:-translate-x-1 transition-transform" />
+            <span className="font-medium text-xs md:text-base">Back</span>
           </button>
         </div>
 
-        <div className="absolute bottom-0 left-0 right-0 p-8 md:p-12">
+        <div className="absolute bottom-0 left-0 right-0 p-6 md:p-12">
           <div className="max-w-6xl mx-auto">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="space-y-4"
+              className="space-y-2 md:space-y-4"
             >
-              <div className="flex items-center space-x-3">
-                <span className="px-4 py-1.5 bg-primary-600 text-white text-xs font-bold uppercase tracking-wider rounded-full shadow-lg shadow-primary-600/20">
+              <div className="flex items-center space-x-2 md:space-x-3">
+                <span className="px-3 py-1 bg-primary-600 text-white text-[10px] md:text-xs font-bold uppercase tracking-wider rounded-full shadow-lg shadow-primary-600/20">
                   {restaurant.cuisineType}
                 </span>
-                <div className="flex items-center space-x-1 bg-black/30 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10">
-                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  <span className="text-sm font-bold text-white">{restaurant.rating.toFixed(1)}</span>
+                <div className="flex items-center space-x-1 bg-black/30 backdrop-blur-md px-2 py-1 md:px-3 md:py-1.5 rounded-full border border-white/10">
+                  <Star className="w-3 h-3 md:w-4 md:h-4 fill-amber-400 text-amber-400" />
+                  <span className="text-xs md:text-sm font-bold text-white">{restaurant.rating.toFixed(1)}</span>
                 </div>
               </div>
-              <h1 className="text-4xl md:text-6xl font-display font-bold text-white tracking-tight">
+              <h1 className="text-2xl md:text-6xl font-display font-bold text-white tracking-tight">
                 {restaurant.name}
               </h1>
-              <div className="flex items-center text-white/90 space-x-6">
+              <div className="flex flex-wrap items-center text-white/90 gap-4 md:gap-6">
                 <div className="flex items-center space-x-2">
-                  <MapPin className="w-5 h-5 text-primary-400" />
-                  <span className="text-sm font-medium">{restaurant.city}</span>
+                  <MapPin className="w-4 h-4 md:w-5 md:h-5 text-primary-400" />
+                  <span className="text-xs md:text-sm font-medium">{restaurant.city}</span>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <Clock className="w-5 h-5 text-primary-400" />
-                  <span className="text-sm font-medium">{restaurant.openingTime.slice(0, 5)} - {restaurant.closingTime.slice(0, 5)}</span>
+                  <Clock className="w-4 h-4 md:w-5 md:h-5 text-primary-400" />
+                  <span className="text-xs md:text-sm font-medium">{restaurant.openingTime.slice(0, 5)} - {restaurant.closingTime.slice(0, 5)}</span>
                 </div>
               </div>
             </motion.div>

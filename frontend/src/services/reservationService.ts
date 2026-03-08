@@ -1,18 +1,19 @@
 // frontend/src/services/reservationService.ts
 import { supabase } from '../config/supabase'
-import { CreateReservationDTO, Reservation, TimeSlot } from '../../../shared/types'
+import { CreateReservationDTO, Reservation, TimeSlot } from '../types'
 
 class ReservationService {
   async createReservation(data: CreateReservationDTO): Promise<Reservation> {
     try {
-      // 1. Find a suitable table first
+      // 1. Find a suitable table first using capacity ranges
       const { data: tables, error: tableError } = await supabase
         .from('tables')
         .select('*')
+        .lte('min_capacity', data.guestCount)
+        .gte('max_capacity', data.guestCount)
         .eq('restaurant_id', data.restaurantId)
-        .gte('capacity', data.guestCount)
         .eq('is_available', true)
-        .order('capacity', { ascending: true });
+        .order('max_capacity', { ascending: true });
 
       if (tableError) throw new Error(tableError.message);
       
@@ -38,7 +39,7 @@ class ReservationService {
           reservation_time: data.reservationTime,
           guest_count: data.guestCount,
           special_notes: data.specialNotes,
-          status: 'pending'
+          status: 'awaiting_payment'
         }])
         .select()
         .single();
@@ -86,6 +87,7 @@ class ReservationService {
       } : undefined
     }))
   }
+  
 
   async getAvailableTimeSlots(restaurantId: string, date: string, guestCount: number): Promise<TimeSlot[]> {
     // 1. Get restaurant hours
@@ -97,12 +99,13 @@ class ReservationService {
 
     if (!restaurant) throw new Error('Restaurant not found')
 
-    // 2. Get all tables for this restaurant that can fit the guest count
+    // 2. Get all tables for this restaurant that match the specific guest count range
     const { data: allTables } = await supabase
       .from('tables')
-      .select('id, capacity')
+      .select('id')
       .eq('restaurant_id', restaurantId)
-      .gte('capacity', guestCount)
+      .lte('min_capacity', guestCount)
+      .gte('max_capacity', guestCount)
       .eq('is_available', true);
 
     const totalSuitableTables = allTables?.length || 0;
@@ -148,23 +151,46 @@ class ReservationService {
       .update({ status: 'cancelled' })
       .eq('id', id)
       .select()
-      .single()
 
     if (error) throw new Error(error.message)
-    return data
+    return data?.[0]
   }
 
+  // Add this to ReservationService class
+async getAllReservationsForAdmin() {
+  const { data, error } = await supabase
+    .from('reservations')
+    .select('*, users!customer_id(*), restaurants(*), tables(*)')
+    .order('reservation_date', { ascending: false });
+
+  if (error) throw new Error(error.message);
+  return data;
+}
+
+
   async getReservationById(id: string) {
+    const { data: { user } } = await supabase.auth.getUser();
+    console.log('Current User ID from Auth:', user?.id);
+    
     const { data, error } = await supabase
       .from('reservations')
       .select('*, restaurants:restaurant_id(*), tables:table_id(*)')
       .eq('id', id)
       .maybeSingle()
 
-    if (error) throw new Error(error.message)
-    if (!data) return null;
+    if (error) {
+      console.error('Supabase Error in getReservationById:', error);
+      throw new Error(error.message);
+    }
+    
+    if (!data) {
+      console.warn('No reservation data found for ID:', id, '. This is likely due to RLS policies or an invalid ID.');
+      return null;
+    }
     
     const r = data;
+    console.log('Raw Reservation Data from Supabase:', r);
+    
     return {
       id: r.id,
       userId: r.customer_id,
@@ -193,7 +219,7 @@ class ReservationService {
   async getRestaurantReservations(restaurantId: string, date?: string) {
     let query = supabase
       .from('reservations')
-      .select('*, users(*), tables(*)')
+      .select('*, users!customer_id(*), tables(*)')
       .eq('restaurant_id', restaurantId)
 
     if (date) {
@@ -212,7 +238,37 @@ class ReservationService {
       .update({ status })
       .eq('id', id)
       .select()
+
+    if (error) throw new Error(error.message)
+    return data?.[0]
+  }
+
+  async submitFeedback(reservationId: string, rating: number, comment: string) {
+    const { data: { user } } = await supabase.auth.getUser()
+    if (!user) throw new Error('Not authenticated')
+
+    const { data, error } = await supabase
+      .from('reviews')
+      .insert([{
+        reservation_id: reservationId,
+        customer_id: user.id,
+        rating,
+        comment,
+        created_at: new Date().toISOString()
+      }])
+      .select()
       .single()
+
+    if (error) throw new Error(error.message)
+    return data
+  }
+
+  async getReservationFeedback(reservationId: string) {
+    const { data, error } = await supabase
+      .from('reviews')
+      .select('*')
+      .eq('reservation_id', reservationId)
+      .maybeSingle()
 
     if (error) throw new Error(error.message)
     return data
